@@ -1,7 +1,7 @@
 # DOM Selector ( @peter.naydenov/dom-selector )
 
 ![version](https://img.shields.io/github/package-json/v/peterNaydenov/dom-selector)
-![license](https://img.shields.io/github/license/peterNaydenov/dom-selector)
+![GitHub License](https://img.shields.io/github/license/peterNaydenov/dom-selector)
 
 
 
