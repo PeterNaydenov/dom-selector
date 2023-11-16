@@ -8,6 +8,8 @@
 ## Description
 Keep all DOM selections and DOM references organized in a single space. Avoid long and difficult-to-read select operations in your code by using simple and meaningful names instead.
 
+Framework agnostic. No dependencies.
+
 
 
 ## Methods
