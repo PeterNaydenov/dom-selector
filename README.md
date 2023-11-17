@@ -74,7 +74,8 @@ const selection = {
 - Property `stop`: Optional. A function that can stop the selection process. Received arguments are current DOM node and current result. You can stop the selection process if you have found what you are looking for or number of results is enough for you. Returns true or false. Default: false;
 
 
-
+## Links
+- [History of changes](https://github.com/PeterNaydenov/dom-selector/blob/main/Changelog.md)
 
 
 ## Credits
