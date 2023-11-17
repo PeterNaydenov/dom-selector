@@ -10,8 +10,8 @@
     "html",
     "scan"
   ],
-  "type": "module",
   "main" : "src/main.js",
+  "type": "module",
 
   "scripts": {
     "dev": "vite",
@@ -19,6 +19,12 @@
     "preview": "vite preview",
     "test": "cypress open --component --browser chrome"
   },
+
+  "repository": {
+        "type": "git",
+        "url": "git+https://github.com/PeterNaydenov/dom-selector.git"
+      },
+
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",
     "chai": "^4.3.10",
