@@ -1,7 +1,7 @@
 {
   "name": "@peter.naydenov/dom-selector",
-  "description" : "DOM selections and DOM references organizer",
-  "version": "0.8.0",
+  "description": "DOM selections and DOM references organizer",
+  "version": "1.0.0",
   "license": "MIT",
   "author": "Peter Naydenov",
   "keywords": [
@@ -10,21 +10,18 @@
     "html",
     "scan"
   ],
-  "main" : "src/main.js",
+  "main": "src/main.js",
   "type": "module",
-
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "test": "cypress open --component --browser chrome"
   },
-
   "repository": {
-        "type": "git",
-        "url": "git+https://github.com/PeterNaydenov/dom-selector.git"
-      },
-
+    "type": "git",
+    "url": "git+https://github.com/PeterNaydenov/dom-selector.git"
+  },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.5.0",
     "chai": "^4.3.10",
