@@ -2,6 +2,9 @@
 
 ![version](https://img.shields.io/github/package-json/v/peterNaydenov/dom-selector)
 ![GitHub License](https://img.shields.io/github/license/peterNaydenov/dom-selector)
+![GitHub issues](https://img.shields.io/github/issues-raw/peterNaydenov/dom-selector)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/%40peter.naydenov%2Fdom-selector)
+
 
 
 ## Description
