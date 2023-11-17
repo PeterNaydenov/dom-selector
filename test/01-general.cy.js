@@ -8,9 +8,7 @@ import Example1 from './vue-example-01.vue'
 
 describe ( 'DOM Selector', () => {
 
-beforeEach ( () => {
-    
-})
+
 
 it ( 'Define simpliest selector', done => {
             cy.viewport ( 800, 650 )
@@ -35,14 +33,14 @@ it ( 'Scan deep', done => {
             cy.viewport ( 800, 650 )
             cy.mount ( Example1 )
             const d = document.querySelector('[data-cy-root]');
-            const selector = domSelector();
-            selector.define ({
+            const dom = domSelector();
+            dom.define ({
                           name : 'component'
                         , selector: () => d
                 })
             cy.wait ( 0 )
               .then ( () => {
-                            const r = selector.run ( 'component' );
+                            const r = dom.run ( 'component' );
                             expect ( r.length ).to.equal ( 33 )
                             done ()
                 })
@@ -54,8 +52,8 @@ it ( 'Scan and filter', done => {
             cy.viewport ( 800, 650 )
             cy.mount ( Example1 )
             const d = document.querySelector('[data-cy-root]');
-            const selector = domSelector();
-            selector.define ({
+            const dom = domSelector();
+            dom.define ({
                           name : 'component'
                         , selector: () => d
                         , where : ( item, i ) => {
@@ -65,7 +63,7 @@ it ( 'Scan and filter', done => {
                 })
             cy.wait ( 0 )
               .then ( () => {
-                            const r = selector.run ( 'component' );
+                            const r = dom.run ( 'component' );
                             expect ( r.length ).to.equal ( 4 )
                             done ()
                 })
@@ -77,8 +75,8 @@ it ( 'Stop the deep scan', done => {
             cy.viewport ( 800, 650 )
             cy.mount ( Example1 )
             const d = document.querySelector('[data-cy-root]');
-            const selector = domSelector();
-            selector.define ({
+            const dom = domSelector();
+            dom.define ({
                           name : 'component'
                         , selector: () => d
                         , where : ( item, i ) => {
@@ -92,7 +90,7 @@ it ( 'Stop the deep scan', done => {
                 })
             cy.wait ( 0 )
               .then ( () => {
-                            const r = selector.run ( 'component' );
+                            const r = dom.run ( 'component' );
                             expect ( r.length ).to.equal ( 2 )
                             done ()
                 })
@@ -104,8 +102,8 @@ it ( 'Stop the deep scan2', done => {
             cy.viewport ( 800, 650 )
             cy.mount ( Example1 )
             const d = document.querySelector('[data-cy-root]');
-            const selector = domSelector();
-            selector.define ({
+            const dom = domSelector();
+            dom.define ({
                           name : 'component'
                         , selector: () => d
                         , where : ( item, i ) => {
@@ -119,10 +117,32 @@ it ( 'Stop the deep scan2', done => {
                 })
             cy.wait ( 0 )
               .then ( () => {
-                            const r = selector.run ( 'component' );
+                            const r = dom.run ( 'component' );
                             expect ( r.length ).to.equal ( 2 )
                             done ()
                 })
     }) // it Stop the deep scan2
+
+
+
+it ( 'Back scan to the body', done => { 
+            cy.viewport ( 800, 650 )
+            cy.mount ( Example1 )
+            const d = document.querySelector('[data-cy-root]');
+            const dom = domSelector();
+            dom.define ({
+                          name : 'component'
+                        , selector: () => d
+                        , direction : 'up'
+                })
+                
+            cy.wait ( 0 )
+              .then ( () => {
+                            const r = dom.run ( 'component' );
+                            console.log ( r )
+                            // expect ( r.length ).to.equal ( 2 )
+                            done ()
+                })
+    }) // it Back scan to the body
 
 }) // describe
