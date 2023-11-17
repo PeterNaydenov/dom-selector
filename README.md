@@ -49,10 +49,23 @@ dom.define ({
 })
 
 // Run a selection
-const ulElements = dom.run ( 'li')
+const navItems = dom.run ('li');
 
 // use the last result of the selection. Do not trigger a selection again.
-dom.use ( 'li' )
+for ( let item of dom.use ( 'li' )) {
+      // do something with the item
+  }
+
+// Example:
+dom.define ({
+              name: 'nav'
+            , selector: () => document.getElementById('nav')
+            , where : ( node, i ) => node.tagName === 'LI'
+            })
+// dom.run ( 'nav') -> will collect all <li> elements inside #nav
+dom.run ( 'nav' ).map ( item => {
+                // do something with the <li> element
+            })
 ```
 
 
