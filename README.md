@@ -81,10 +81,10 @@ const selection = {
 }
 ```
 
-- Property `Selector` :  A function that returns a DOM node or list of DOM node references. If the function returns a list of DOM nodes, `DOM Selector` will use them as a result. If the function returns a single DOM node, `DOM Selector` will use it as a starting point for DOM scanning and will return a list of DOM nodes according to the `direction` property;
-- Property `direction`: If the selector function returns a single DOM node, `DOM Selector` will use it as a starting point for DOM scanning and will return a list of DOM nodes according to the `direction` property. Value 'up' will scan the DOM tree parents up to <body> tag. Value 'down' will scan the DOM tree children down to the last child. Default: 'down'. This property is ignored if the selector function returns a list of DOM nodes;
-- Property `where`: Optional. A function that can filter nodes from selector function. Returns true or false. Default: true;
-- Property `stop`: Optional. A function that can stop the selection process. Received arguments are current DOM node and current result. You can stop the selection process if you have found what you are looking for or number of results is enough for you. Returns true or false. Default: false;
+- `selector` :  A function that returns a DOM node or list of DOM node references. If the function returns a list of DOM nodes, `DOM Selector` will use them as a result. If the function returns a single DOM node, `DOM Selector` will use it as a starting point for DOM scanning and will return a list of DOM nodes according to the `direction` property;
+- `direction`: If the selector function returns a single DOM node, `DOM Selector` will use it as a starting point for DOM scanning and will return a list of DOM nodes according to the `direction` property. Value 'up' will scan the DOM tree parents up to <body> tag. Value 'down' will scan the DOM tree children down to the last child. Default: 'down'. This property is ignored if the selector function returns a list of DOM nodes;
+- `where`: Optional. A function that can filter nodes from selector function. Returns true or false. Default: true;
+- `stop` : Optional. A function that can stop the selection process. Received arguments are current DOM node and current result. You can stop the selection process if you have found what you are looking for or number of results is enough for you. Returns true or false. Default: false;
 
 
 ## Links

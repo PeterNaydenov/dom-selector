@@ -60,11 +60,8 @@ function domSelector () {
     
     function _select ( startingPoint, direction, where, stop, ...args ) {
                 const 
-                      forScan = (   // If startingPoint is HTMLCollection, nodeList or Array, we don't need to scan the DOM.
-                                    startingPoint instanceof HTMLCollection ||
-                                    startingPoint instanceof NodeList       ||
-                                    startingPoint instanceof Array
-                                ) ? false : true   
+                      // If startingPoint is HTMLCollection, nodeList or Array, we don't need to scan the DOM.
+                      forScan = ( startingPoint?.length ) ? false : true   
                     , result = []
                     ;
                 let source;
@@ -125,11 +122,7 @@ function domSelector () {
      */
     function remember ( name, domElement ) {
             // Add to last domElement if is an array, otherwise but it in an array
-             if ( 
-                        domElement instanceof Array ||
-                        domElement instanceof HTMLCollection ||
-                        domElement instanceof NodeList
-                ) {
+             if ( domElement?.length ) {
                         last.set ( name, domElement )
                         return
                 }
