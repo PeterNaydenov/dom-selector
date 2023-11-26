@@ -1,3 +1,6 @@
+<img src="dom-selector.png" width="100%" alt="Notice" align="center" />
+
+
 # DOM Selector ( @peter.naydenov/dom-selector )
 
 ![version](https://img.shields.io/github/package-json/v/peterNaydenov/dom-selector)
