@@ -11,8 +11,7 @@ function domSelector () {
      * @typedef {Object} Selection
      * @property {string} name - Name of the selection
      * @property {Function} selector - Function that returns DOM element as the starting point of the selection or list of DOM elements
-     * @property {Function} [where] - Function that returns true if the element should be included in the selection
-     * @property {Function} [stop] - Function that returns true if the selection should be stopped
+     * @property {Function} [where] - Function that returns DOM element or null if the element should be filtered out. Returns END symbol if the selection should be stopped
      * @property {'up'|'down'} [direction] - Direction of DOM scan if selector returns a single DOM element
      */
 
@@ -27,8 +26,7 @@ function domSelector () {
                 let { name, selector, where, stop, direction } = selection;
                 
                 if ( !name || !selector || !(selector instanceof Function) )   return false                
-                if ( !where     )   where = () => true  // Default where
-                if ( !stop      )   stop  = () => false // Default stop
+                if ( !where     )   where = ({item}) => item  // Default where
                 if ( !direction )   direction = 'down'  // Default direction
                 
                 store.set ( name, { selector, where, stop, direction })
@@ -58,20 +56,22 @@ function domSelector () {
 
 
     
-    function _select ( startingPoint, direction, where, stop, ...args ) {
+    function _select ( startingPoint, direction, where, ...args ) {
                 const 
                       // If startingPoint is HTMLCollection, nodeList or Array, we don't need to scan the DOM.
                       forScan = ( startingPoint?.length ) ? false : true   
                     , result = []
+                    , END = Symbol ( 'end___' )
                     ;
                 let source;
-                if ( forScan )   source = ( direction === 'up' ) ? up( startingPoint ) : down ( startingPoint )
-                else             source = startingPoint
+                if ( forScan ) source = ( direction === 'up' ) ? up( startingPoint ) : down ( startingPoint )
+                else           source = startingPoint
                 let i = 0;
                 for ( let item of source ) {
-                            if ( where ( item, i, ...args ))   result.push ( item )
-                            if ( stop ( item, result ))   break
+                            let r = where ( {item, i, END, length:result.length, down, up}, ...args );
                             i++
+                            if ( r === END )  break
+                            if ( r )   result.push ( r )
                     }
                 return result
         } // _select func.
@@ -93,8 +93,8 @@ function domSelector () {
                     let record = store.get( name );
                     if ( record == null ) return []
 
-                    let { name:nm, selector, direction, where, stop } = record;                    
-                    let result = _select ( selector(), direction, where, stop, ...args );
+                    let { name:nm, selector, direction, where } = record;                    
+                    let result = _select ( selector(), direction, where, ...args );
                     last.set ( nm, result )
                     return result
         } // run func.

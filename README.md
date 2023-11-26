@@ -59,11 +59,18 @@ for ( let item of dom.use ( 'li' )) {
 // Example:
 dom.define ({
               name: 'nav'
-            , selector: () => document.getElementById('nav')
-            , where : ( node, i ) => node.tagName === 'LI'
+            , selector: () => document.getElementById ( 'nav' )
+            , where : ({ item, i, END, length, up, down }, extra) => item.tagName === 'LI'
+            // item   -> selector element
+            // i      -> index of the selector element
+            // length -> length of the result array
+            // END    -> Symbol to stop the scan
+            // up     -> up() function returns a list of all parent DOM nodes.
+            // down   -> down() function returns a list of all nested DOM nodes.
+            // extra   -> extra argument coming from the 'run' function
             })
 // dom.run ( 'nav') -> will collect all <li> elements inside #nav
-dom.run ( 'nav' ).map ( item => {
+dom.run ( 'nav', extra ).map ( item => {
                 // do something with the <li> element
             })
 ```
@@ -76,19 +83,34 @@ const selection = {
     name: 'mySelection' // *required. A unique name for the selection
   , selector: () => document.querySelector('div')   // *required. A function that returns a DOM node or list of DOM node references
   , direction : 'up' // optional. Values: 'up' or 'down'. Default: 'down'.
-  , where : ( node, i ) => node.classList.contains('myClass') // optional. A function that can filter nodes from selector function. Returns true or false. Default: true
-  , stop : ( node, result ) => result.length === 1 // optional. A function that can stop the selection process. Returns true or false. Default: false
+  , where : ({ item, i, END, length, up, down }) => item.classList.contains('myClass') // optional. A function that can filter nodes from selector function. Returns item to include it in selection, null for removing the item from the selection or END to stop the selection process. Use 'up' and 'down' arguments are functions to get the list of nodes in the current direction.
 }
+
+
+// Example:
+// Select only <li> elements that has a <span> inside
+const selection = { 
+    name: 'li-span' 
+  , selector: () => document.querySelector ( 'li' ) 
+  , where : ({ item, i, END, length, up, down }) => {
+                                  let hasSpan = false;
+                                  for ( let child of down(item) ) { // down(item) -> returns a list of all nested DOM nodes
+                                          if ( child.tagName === 'SPAN' ) hasSpan = true;
+                                      }
+                                  return hasSpan ? item : null;
+                          }
+}
+// Respectively 'up' function returns a list of all parent DOM nodes. 
 ```
 
 - `selector` :  A function that returns a DOM node or list of DOM node references. If the function returns a list of DOM nodes, `DOM Selector` will use them as a result. If the function returns a single DOM node, `DOM Selector` will use it as a starting point for DOM scanning and will return a list of DOM nodes according to the `direction` property;
 - `direction`: If the selector function returns a single DOM node, `DOM Selector` will use it as a starting point for DOM scanning and will return a list of DOM nodes according to the `direction` property. Value 'up' will scan the DOM tree parents up to <body> tag. Value 'down' will scan the DOM tree children down to the last child. Default: 'down'. This property is ignored if the selector function returns a list of DOM nodes;
-- `where`: Optional. A function that can filter nodes from selector function. Returns true or false. Default: true;
-- `stop` : Optional. A function that can stop the selection process. Received arguments are current DOM node and current result. You can stop the selection process if you have found what you are looking for or number of results is enough for you. Returns true or false. Default: false;
+- `where`: Optional. A function that can filter nodes from selector function. Returns the item to select, null to remove. Return END to stop the selection process;
 
 
 ## Links
 - [History of changes](https://github.com/PeterNaydenov/dom-selector/blob/main/Changelog.md)
+- [Migration guide](https://github.com/PeterNaydenov/dom-selector/blob/main/Migration.guide.md)
 
 
 ## Credits

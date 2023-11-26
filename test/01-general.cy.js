@@ -56,7 +56,7 @@ it ( 'Scan and filter', done => {
             dom.define ({
                           name : 'component'
                         , selector: () => d
-                        , where : ( item, i ) => {
+                        , where : ({item, i}) => {
                                                 if ( item.tagName === 'SPAN' ) return true
                                                 return false
                                         }
@@ -74,18 +74,16 @@ it ( 'Scan and filter', done => {
 it ( 'Stop the deep scan', done => {
             cy.viewport ( 800, 650 )
             cy.mount ( Example1 )
-            const d = document.querySelector('[data-cy-root]');
-            const dom = domSelector();
+            const 
+                  d = document.querySelector('[data-cy-root]')
+                , dom = domSelector()
+                ;
             dom.define ({
                           name : 'component'
                         , selector: () => d
-                        , where : ( item, i ) => {
-                                                if ( item.tagName === 'SPAN' ) return true
-                                                return false
-                                        }
-                        , stop : ( item, result ) => {
-                                                if ( result.length === 2 ) return true
-                                                return false
+                        , where : ({item, i, END, length }) => {
+                                                if ( item.tagName !== 'SPAN' )  return null      // Continue only if SPAN element
+                                                return ( length < 2 ) ? item : END        // Stop when we found 2 SPAN elements
                                         }
                 })
             cy.wait ( 0 )
@@ -106,18 +104,21 @@ it ( 'Stop the deep scan2', done => {
             dom.define ({
                           name : 'component'
                         , selector: () => d
-                        , where : ( item, i ) => {
-                                                if ( item.tagName === 'SPAN' ) return true
-                                                return false
-                                        }
-                        , stop : ( item ) => {
-                                                if ( item.tagName === 'UL' ) return true
-                                                return false
+                        , where : ({item, i, END, length }, counter ) => {
+                                    // item   -> selector element
+                                    // i      -> index of the selector element
+                                    // length -> length of the result array
+                                    // END    -> Symbol to stop the scan
+                                                if ( counter.value >= 2      ) return END     // Stop when we found 2 SPAN elements
+                                                if ( item.tagName !== 'SPAN' ) return null    // Continue only if SPAN element
+                                                counter.value++                               // Increment the SPAN counter
+                                                return item                                   // Return the element
                                         }
                 })
             cy.wait ( 0 )
               .then ( () => {
-                            const r = dom.run ( 'component' );
+                            let counter = {value:0}; // Counter must be an object to be passed by reference
+                            const r = dom.run ( 'component', counter );
                             expect ( r.length ).to.equal ( 2 )
                             done ()
                 })
@@ -139,10 +140,93 @@ it ( 'Back scan to the body', done => {
             cy.wait ( 0 )
               .then ( () => {
                             const r = dom.run ( 'component' );
-                            console.log ( r )
-                            // expect ( r.length ).to.equal ( 2 )
+                            expect ( r.length ).to.equal ( 2 )
                             done ()
                 })
     }) // it Back scan to the body
+
+
+
+it ( 'Selector index', done => {
+        cy.viewport ( 800, 650 )
+        cy.mount ( Example1 )
+        const 
+              d = document.querySelector('[data-cy-root]')
+            , dom = domSelector()
+            , tagCounter = new Set()
+            ;
+        cy.wait ( 0 )
+          .then ( () => { 
+                          dom.define ({
+                                      name: 'list'
+                                    , selector: () => d
+                                    , where : ({item, i, END }, tagCounter ) => {
+                                                              tagCounter.add ( i )
+                                                              return ( i < 9 ) ? item : END
+                                                          }
+                                })
+                          dom.run ( 'list', tagCounter );
+                          expect ( tagCounter.size ).to.equal ( 10 ) // 10 elements ( 9 + index 0 )
+                          expect ( tagCounter.has ( 0 ) ).to.equal ( true )
+                          expect ( tagCounter.has ( 9 ) ).to.equal ( true )
+                          done ()
+              })
+}) // it Selector index
+
+
+
+it ( 'Find span elements inside a list', done => {
+        cy.viewport ( 800, 650 )
+        cy.mount ( Example1 )
+        const 
+              d = document.querySelector('[data-cy-root]')
+            , dom = domSelector()
+            ;
+        cy.wait ( 0 )
+          .then ( () => {
+                dom.define ({ 
+                            name: 'ul-span'
+                          , selector: () => d.querySelectorAll ( 'span' )
+                          , where: ({item, i, END, length, down, up}) => {
+                                        let liSpan = false
+                                        for ( let parent of up(item) ) {
+                                                   if ( parent.tagName === 'LI' )   liSpan = true
+                                            }
+                                        return ( liSpan ) ? item : null
+                                    }
+                      })
+                const r = dom.run ( 'ul-span' )
+                expect ( r.length ).to.equal ( 2 )
+                done ()
+            })
+}) // it Find span elements inside a list
+
+
+
+it ( 'Find only li that have span', done => {
+        cy.viewport ( 800, 650 )
+        cy.mount ( Example1 )
+        const 
+              d = document.querySelector('[data-cy-root]')
+            , dom = domSelector()
+            ;
+        cy.wait ( 0 )
+          .then ( () => {
+                dom.define ({ 
+                            name: 'li-span'
+                          , selector: () => d.querySelectorAll ( 'li' )
+                          , where: ({item, i, END, length, down, up}) => {
+                                        let liSpan = false
+                                        for ( let child of down(item) ) {
+                                                   if ( child.tagName === 'SPAN' )   liSpan = true
+                                            }
+                                        return ( liSpan ) ? item : null
+                                    }
+                      })
+                const r = dom.run ( 'li-span' )
+                expect ( r.length ).to.equal ( 2 )
+                done ()
+            })
+}) // it Find span elements inside a list
 
 }) // describe
