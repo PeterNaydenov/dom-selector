@@ -23,10 +23,10 @@
     "url": "git+https://github.com/PeterNaydenov/dom-selector.git"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.5.1",
+    "@vitejs/plugin-vue": "^4.5.2",
     "chai": "^4.3.10",
-    "cypress": "^13.6.0",
-    "vite": "^5.0.4",
-    "vue": "^3.3.9"
+    "cypress": "^13.6.1",
+    "vite": "^5.0.7",
+    "vue": "^3.3.11"
   }
 }
