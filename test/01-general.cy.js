@@ -2,18 +2,28 @@
 
 import { expect } from 'chai'
 import domSelector from '../src/main.js'
+import VisualController from '@peter.naydenov/visual-controller-for-vue3'
+
+
 
 import Example1 from './vue-example-01.vue'
 
 
+const html = new VisualController ();
+
+
 describe ( 'DOM Selector', () => {
 
-
+afterEach ( () => {
+        html.destroy ('root')
+  })
 
 it ( 'Define simpliest selector', done => {
             cy.viewport ( 800, 650 )
-            cy.mount ( Example1 )
             const d = document.querySelector('[data-cy-root]');
+            d.id = 'root'
+
+            html.publish ( Example1,{}, 'root' )
             const dom = domSelector();
             dom.define ({
                     name: 'ul',
@@ -31,17 +41,20 @@ it ( 'Define simpliest selector', done => {
 
 it ( 'Scan deep', done => {
             cy.viewport ( 800, 650 )
-            cy.mount ( Example1 )
             const d = document.querySelector('[data-cy-root]');
+            d.id = 'root'
+            html.publish ( Example1, {}, 'root' )
+
             const dom = domSelector();
             dom.define ({
                           name : 'component'
                         , selector: () => d
                 })
+
             cy.wait ( 0 )
               .then ( () => {
                             const r = dom.run ( 'component' );
-                            expect ( r.length ).to.equal ( 33 )
+                            expect ( r.length ).to.equal ( 31 )
                             done ()
                 })
     }) // it Scan deep
@@ -50,8 +63,10 @@ it ( 'Scan deep', done => {
 
 it ( 'Scan and filter', done => {
             cy.viewport ( 800, 650 )
-            cy.mount ( Example1 )
             const d = document.querySelector('[data-cy-root]');
+            d.id = 'root'
+            html.publish ( Example1, {}, 'root' )
+
             const dom = domSelector();
             dom.define ({
                           name : 'component'
@@ -73,11 +88,13 @@ it ( 'Scan and filter', done => {
 
 it ( 'Stop the deep scan', done => {
             cy.viewport ( 800, 650 )
-            cy.mount ( Example1 )
             const 
-                  d = document.querySelector('[data-cy-root]')
-                , dom = domSelector()
+                  d = document.querySelector ('[data-cy-root]')
+                , dom = domSelector ()
                 ;
+            d.id = 'root'
+            html.publish ( Example1, {}, 'root' )
+
             dom.define ({
                           name : 'component'
                         , selector: () => d
@@ -98,9 +115,14 @@ it ( 'Stop the deep scan', done => {
 
 it ( 'Stop the deep scan2', done => {
             cy.viewport ( 800, 650 )
-            cy.mount ( Example1 )
-            const d = document.querySelector('[data-cy-root]');
-            const dom = domSelector();
+            
+            const 
+                  d = document.querySelector('[data-cy-root]')
+                , dom = domSelector()
+                ;
+            d.id = 'root'
+            html.publish ( Example1, {}, 'root' )
+
             dom.define ({
                           name : 'component'
                         , selector: () => d
@@ -128,9 +150,14 @@ it ( 'Stop the deep scan2', done => {
 
 it ( 'Back scan to the body', done => { 
             cy.viewport ( 800, 650 )
-            cy.mount ( Example1 )
-            const d = document.querySelector('[data-cy-root]');
-            const dom = domSelector();
+            
+            const 
+                  d = document.querySelector('[data-cy-root]')
+                , dom = domSelector ()
+                ;
+            d.id = 'root'
+            html.publish ( Example1, {}, 'root' )
+
             dom.define ({
                           name : 'component'
                         , selector: () => d
@@ -149,12 +176,16 @@ it ( 'Back scan to the body', done => {
 
 it ( 'Selector index', done => {
         cy.viewport ( 800, 650 )
-        cy.mount ( Example1 )
+        
         const 
               d = document.querySelector('[data-cy-root]')
             , dom = domSelector()
             , tagCounter = new Set()
             ;
+
+        d.id = 'root'
+        html.publish ( Example1, {}, 'root' )
+
         cy.wait ( 0 )
           .then ( () => { 
                           dom.define ({
@@ -177,11 +208,15 @@ it ( 'Selector index', done => {
 
 it ( 'Find span elements inside a list', done => {
         cy.viewport ( 800, 650 )
-        cy.mount ( Example1 )
+        
         const 
               d = document.querySelector('[data-cy-root]')
             , dom = domSelector()
             ;
+
+        d.id = 'root'
+        html.publish ( Example1, {}, 'root' )
+
         cy.wait ( 0 )
           .then ( () => {
                 dom.define ({ 
@@ -205,11 +240,14 @@ it ( 'Find span elements inside a list', done => {
 
 it ( 'Find only li that have span', done => {
         cy.viewport ( 800, 650 )
-        cy.mount ( Example1 )
         const 
               d = document.querySelector('[data-cy-root]')
             , dom = domSelector()
             ;
+          
+        d.id = 'root'
+        html.publish ( Example1, {}, 'root' )
+
         cy.wait ( 0 )
           .then ( () => {
                 dom.define ({ 
