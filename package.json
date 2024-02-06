@@ -1,20 +1,20 @@
 {
   "name": "@peter.naydenov/dom-selector",
   "description": "DOM selections and DOM references organizer",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "MIT",
   "author": "Peter Naydenov",
   "main": "./dist/dom-selector.umd.js",
   "type": "module",
   "exports": {
-      ".": {
-              "import" : "./dist/dom-selector.esm.mjs",
-              "require": "./dist/dom-selector.cjs",
-              "default": "./dist/dom-selector.umd.js"
-            },
-      "./package.json": "./package.json",
-      "./dist/*": "./dist/*",
-      "./src/*": "./src/*"
+    ".": {
+      "import": "./dist/dom-selector.esm.mjs",
+      "require": "./dist/dom-selector.cjs",
+      "default": "./dist/dom-selector.umd.js"
+    },
+    "./package.json": "./package.json",
+    "./dist/*": "./dist/*",
+    "./src/*": "./src/*"
   },
   "scripts": {
     "dev": "vite",
