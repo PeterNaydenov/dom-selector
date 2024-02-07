@@ -34,6 +34,8 @@ npm install @peter.naydenov/dom-selector
 From the project:
 ```js
 import domSelector from '@peter.naydenov/dom-selector';
+// or require it:
+// const domSelector = require('@peter.naydenov/dom-selector');
 
 const dom = domSelector();
 // Ready to use
