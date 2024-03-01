@@ -31,11 +31,11 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
-    "@vitejs/plugin-vue": "^5.0.3",
-    "chai": "^5.0.3",
-    "cypress": "^13.6.4",
-    "vite": "^5.0.12",
-    "vue": "^3.4.15"
+    "@vitejs/plugin-vue": "^5.0.4",
+    "chai": "^5.1.0",
+    "cypress": "^13.6.6",
+    "vite": "^5.1.4",
+    "vue": "^3.4.21"
   },
   "keywords": [
     "dom",
