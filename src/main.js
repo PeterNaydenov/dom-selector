@@ -23,13 +23,12 @@ function domSelector () {
      * @returns {boolean} - True if the selection was defined successfully
      */
     function define ( selection ) {
-                let { name, selector, where, stop, direction } = selection;
-                
+                let { name, selector, where, direction } = selection;
                 if ( !name || !selector || !(selector instanceof Function) )   return false                
                 if ( !where     )   where = ({item}) => item  // Default where
                 if ( !direction )   direction = 'down'  // Default direction
                 
-                store.set ( name, { selector, where, stop, direction })
+                store.set ( name, { name, selector, where, direction })
                 return true
         } // define func.
 
@@ -93,9 +92,10 @@ function domSelector () {
                     let record = store.get( name );
                     if ( record == null ) return []
 
-                    let { name:nm, selector, direction, where } = record;                    
+                    let { name:nm, selector, direction, where } = record;
+                    console.log ( nm)
                     let result = _select ( selector(), direction, where, ...args );
-                    last.set ( nm, result )
+                    last.set ( name, result )
                     return result
         } // run func.
 

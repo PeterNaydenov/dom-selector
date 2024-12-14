@@ -20,10 +20,10 @@ afterEach ( () => {
 
 it ( 'Define simpliest selector', done => {
             cy.viewport ( 800, 650 )
-            const d = document.querySelector('[data-cy-root]');
+            const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
             d.id = 'root'
 
-            html.publish ( Example1,{}, 'root' )
+            html.publish ( Example1, {}, 'root' )
             const dom = domSelector();
             dom.define ({
                     name: 'ul',
@@ -267,4 +267,8 @@ it ( 'Find only li that have span', done => {
             })
 }) // it Find span elements inside a list
 
+
+
 }) // describe
+
+

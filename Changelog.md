@@ -2,10 +2,20 @@
 
 
 
+### 2.1.1 ( 2024-12-14)
+- [x] Fix: Cannot use method 'use', because is definition of the selector is not properly saved; 
+
+
+
+
+
 ## 2.1.0 ( 2024-02-06)
 - [x] Folder 'dist' was added to the project. Includes commonjs, umd and esm versions of the library;
 - [x] Package.json: "exports" section was added. Allows you to use package as commonjs or es6 module without additional configuration;
 - [x] Rollup was added to the project. Used to build the library versions;
+- [ ] Bug: Cannot use method 'use', because is definition of the selector is not properly saved;
+
+
 
 
 
