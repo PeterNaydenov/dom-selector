@@ -6,6 +6,7 @@
   "author": "Peter Naydenov",
   "main": "./src/main.js",
   "type": "module",
+  "types": "./types/main.d.ts",
   "exports": {
     ".": {
       "import": "./src/main.js",
@@ -19,6 +20,7 @@
   "scripts": {
     "dev": "vite",
     "build": "rollup -c",
+    "postbuild": "tsc -p tsconfig.json",
     "preview": "vite preview",
     "test": "cypress run --component --browser chrome"
   },
@@ -32,9 +34,11 @@
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@types/mocha": "^10.0.10",
+    "@types/node": "^22.10.2",
     "@vitejs/plugin-vue": "^5.2.1",
     "chai": "^5.1.2",
     "cypress": "^13.16.1",
+    "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "vue": "^3.5.13"
   },

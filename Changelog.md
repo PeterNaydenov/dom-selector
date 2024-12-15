@@ -2,6 +2,11 @@
 
 
 
+### 2.1.2 ( 2024-12-15)
+- [x] TypeScript definition files .d.ts was added to the project;
+
+
+
 ### 2.1.1 ( 2024-12-14)
 - [x] Fix: Cannot use method 'use', because is definition of the selector is not properly saved; 
 
