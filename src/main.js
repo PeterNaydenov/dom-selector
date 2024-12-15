@@ -93,7 +93,6 @@ function domSelector () {
                     if ( record == null ) return []
 
                     let { name:nm, selector, direction, where } = record;
-                    console.log ( nm)
                     let result = _select ( selector(), direction, where, ...args );
                     last.set ( name, result )
                     return result
