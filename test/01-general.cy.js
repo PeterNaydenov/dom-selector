@@ -269,6 +269,31 @@ it ( 'Find only li that have span', done => {
 
 
 
+it ( 'Arguments for method "Run" available as argumentsfor the selector function', done => {
+        cy.viewport ( 800, 650 )
+        const 
+              d = document.querySelector('[data-cy-root]')
+            , dom = domSelector ()
+            ;
+          
+        d.id = 'root'
+        html.publish ( Example1, {}, 'root' )
+
+        cy.wait ( 0 )
+          .then ( () => {
+                dom.define ({ 
+                            name: 'li-span'
+                          , selector: ( selector ) => d.querySelectorAll ( selector )
+                      })
+                const r = dom.run ( 'li-span', 'li' )
+                expect ( r.length ).to.equal ( 9 )
+                done ()
+            })
+
+}) // it Arguments for method "Run" available as argumentsfor the selector function
+
+
+
 }) // describe
 
 
