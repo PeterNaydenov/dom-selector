@@ -2,6 +2,11 @@
 
 
 
+## 2.2.0 ( 2025-04-19)
+- [x] Extra arguments for method "Run" available as arguments for the selector function;
+
+
+
 ### 2.1.2 ( 2024-12-15)
 - [x] TypeScript definition files .d.ts was added to the project;
 
