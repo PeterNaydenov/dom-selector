@@ -15,7 +15,7 @@ const html = new VisualController ();
 describe ( 'DOM Selector', () => {
 
 afterEach ( () => {
-        // html.destroy ('root')
+        html.destroy ('root')
   })
 
 it ( 'Define simpliest selector', done => {
