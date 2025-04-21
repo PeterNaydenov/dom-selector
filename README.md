@@ -50,11 +50,11 @@ const dom = domSelector();
 // Define a selection
 dom.define ({
       name: 'li'
-    , selector: () => document.querySelector('li')  
+    , selector: () => document.querySelectorAll ( 'li' )  
 })
 
 // Run a selection
-const navItems = dom.run ('li');
+dom.run ( 'li' )
 
 // use the last result of the selection. Do not trigger a selection again.
 for ( let item of dom.use ( 'li' )) {
@@ -66,7 +66,7 @@ dom.define ({
               name: 'nav'
             , selector: ( extra ) => document.getElementById ( 'nav' )
             // extra   -> extra argument coming from the 'run' function
-            , where : ({ item, i, END, length, up, down }, extra) => item.tagName === 'LI'
+           , where : ({ item, i, END, length, up, down }, extra) => item.tagName === 'LI' ? item : null
             // item   -> selector element
             // i      -> index of the selector element
             // length -> length of the result array
@@ -89,7 +89,8 @@ const selection = {
     name: 'mySelection' // *required. A unique name for the selection
   , selector: () => document.querySelector('div')   // *required. A function that returns a DOM node or list of DOM node references
   , direction : 'up' // optional. Values: 'up' or 'down'. Default: 'down'.
-  , where : ({ item, i, END, length, up, down }) => item.classList.contains('myClass') // optional. A function that can filter nodes from selector function. Returns item to include it in selection, null for removing the item from the selection or END to stop the selection process. Use 'up' and 'down' arguments are functions to get the list of nodes in the current direction.
+  , where : ({ item, i, END, length, up, down }) => item.classList.contains('myClass') ? item : null 
+  // optional. A function that can filter nodes from selector function. Returns item to include it in selection, null for removing the item from the selection or END to stop the selection process. Use 'up' and 'down' arguments are functions to get the list of nodes in the current direction.
 }
 
 
@@ -97,7 +98,7 @@ const selection = {
 // Select only <li> elements that has a <span> inside
 const selection = { 
     name: 'li-span' 
-  , selector: () => document.querySelector ( 'li' ) 
+  , selector: () => document.querySelectorAll ( 'li' ) 
   , where : ({ item, i, END, length, up, down }) => {
                                   let hasSpan = false;
                                   for ( let child of down(item) ) { // down(item) -> returns a list of all nested DOM nodes
