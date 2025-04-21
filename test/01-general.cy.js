@@ -15,7 +15,7 @@ const html = new VisualController ();
 describe ( 'DOM Selector', () => {
 
 afterEach ( () => {
-        html.destroy ('root')
+        // html.destroy ('root')
   })
 
 it ( 'Define simpliest selector', done => {
@@ -291,6 +291,37 @@ it ( 'Arguments for method "Run" available as arguments for the selector functio
             })
 
 }) // it Arguments for method "Run" available as arguments for the selector function
+
+
+
+it ( 'Parameterized selector with filter', done => {
+        cy.viewport ( 800, 650 )
+        const 
+              d = document.querySelector('[data-cy-root]')
+            , dom = domSelector ()
+            ;
+          
+        d.id = 'root'
+        html.publish ( Example1, {}, 'root' )
+
+        cy.wait ( 0 )
+          .then ( () => {
+                    dom.define ({   // Define a parameterized selector. Result should be filtered (only elements that contains SPAN )
+                              name: 'li-span'
+                            , selector: ( target ) => document.querySelectorAll ( target )
+                            , where: ({item, i, END, length, down, up }) => {
+                                          let res =[];
+                                          for ( let child of down(item) ) {
+                                                    if ( child.tagName === 'SPAN' )   res.push ( child.parentElement )
+                                                  }
+                                          return ( res.length > 0 ) ? res : null
+                                } // where
+                        })
+                    const r = dom.run ( 'li-span', '.nav' )
+                    expect ( r.length ).to.equal ( 1 )
+                    done ()
+              })
+}) // it Parameterized selector with filter
 
 
 
