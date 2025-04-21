@@ -269,7 +269,7 @@ it ( 'Find only li that have span', done => {
 
 
 
-it ( 'Arguments for method "Run" available as argumentsfor the selector function', done => {
+it ( 'Arguments for method "Run" available as arguments for the selector function', done => {
         cy.viewport ( 800, 650 )
         const 
               d = document.querySelector('[data-cy-root]')
@@ -290,7 +290,7 @@ it ( 'Arguments for method "Run" available as argumentsfor the selector function
                 done ()
             })
 
-}) // it Arguments for method "Run" available as argumentsfor the selector function
+}) // it Arguments for method "Run" available as arguments for the selector function
 
 
 
