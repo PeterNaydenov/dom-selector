@@ -65,6 +65,7 @@ for ( let item of dom.use ( 'li' )) {
 dom.define ({
               name: 'nav'
             , selector: ( extra ) => document.getElementById ( 'nav' )
+            // extra   -> extra argument coming from the 'run' function
             , where : ({ item, i, END, length, up, down }, extra) => item.tagName === 'LI'
             // item   -> selector element
             // i      -> index of the selector element
