@@ -26,7 +26,7 @@ function domSelector () {
                 let { name, selector, where, direction } = selection;
                 if ( !name || !selector || !(selector instanceof Function) )   return false                
                 if ( !where     )   where = ({item}) => item  // Default where
-                if ( !direction )   direction = 'down'  // Default direction
+                if ( !direction )   direction = 'none'  // Default direction. Possible values: 'up', 'down' and 'none'
                 
                 store.set ( name, { name, selector, where, direction })
                 return true
@@ -54,24 +54,76 @@ function domSelector () {
         } // down func.
 
 
+
+        /**
+         * Converts a value to an array.
+         * @param {*} value - The value to convert to an array
+         * @returns {Array} - The converted array
+         */
+    function convertToArray ( value ) {
+            if ( 
+                        value instanceof NodeList ||
+                        value instanceof HTMLCollection
+            ) {
+                    // If starting point is a NodeList or HTMLCollection, we need to convert it to an array
+                    return Array.from ( value )
+                }
+            else if ( value instanceof Array ) {
+                    // If starting point is an array, we need to convert it to an array
+                    return value
+                }
+            else if ( value == null ) {
+                    // If starting point is null, we need to convert it to an empty array
+                    return []
+                }
+            else {
+                    return [ value ]
+                }
+        } // convertToArray func.
+
+
     
+    /**
+     * @function _select
+     * @description Run a selection
+     * @param {HTMLElement|Array<HTMLElement>} startingPoint - Starting point of the selection or list of DOM elements
+     * @param {'up'|'down'|'none'} [direction] - Direction of DOM scan if selector returns a single DOM element
+     * @param {Function} [where] - Function that returns DOM element or null if the element should be filtered out. Returns END symbol if the selection should be stopped
+     * @param {...*} [args] - Aditional arguments provided to where function
+     * @returns {Array<HTMLElement>} - List of DOM elements
+     */
     function _select ( startingPoint, direction, where, ...args ) {
                 const 
-                      // If startingPoint is HTMLCollection, nodeList or Array, we don't need to scan the DOM.
-                      forScan = ( startingPoint?.length ) ? false : true   
+                      isforScan = ( direction !== 'none' )
+                    , hasWhereFunc = ( where instanceof Function )  
                     , result = []
                     , END = Symbol ( 'end___' )
                     ;
-                let source;
-                if ( forScan ) source = ( direction === 'up' ) ? up( startingPoint ) : down ( startingPoint )
-                else           source = startingPoint
-                let i = 0;
-                for ( let item of source ) {
-                            let r = where ( {item, i, END, length:result.length, down, up}, ...args );
-                            i++
-                            if ( r === END )  break
-                            if ( r )   result.push ( r )
+
+                let source = convertToArray ( startingPoint );
+                if ( source.length === 0 )   return result
+
+                // Add to source elements of extra scan if direction is defined as up or down
+                if ( isforScan ) {
+                        source = source.reduce ( ( res, item) => {
+                                            if ( item instanceof HTMLElement ) {
+                                                    if ( direction === 'up' ) res.push( ...up ( item ) )
+                                                    else if ( direction === 'down' ) res.push( ...down ( item ) )
+                                                }
+                                            return res
+                                        }, [] )
                     }
+
+                if ( hasWhereFunc ) {
+                            let i = 0;
+                            for ( let item of source ) {
+                                        let r = where ( {item, i, END, length:result.length, down, up}, ...args );
+                                        i++
+                                        if ( r === END )  break
+                                        if ( r )   result.push ( ...convertToArray ( r ))
+                                }
+                    }
+                else    result == source
                 return result
         } // _select func.
 
