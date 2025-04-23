@@ -1,5 +1,30 @@
 # Migration Guides
 
+## From 2.x.x to 3.x.x
+### Argument `direction`
+Argument direction has added new option: 'none'. When direction is not specified, the default value is 'none'.
+This means that results will not be expanded by default. In version 2.x.x the default value was 'down' and in some cases we expand the result with children nodes but in other cases we don't. So it's an unconsistent behavior that can lead to confusion and should be removed.
+```js
+// before
+const selection = {
+  name: 'mySelection'
+, selector: () => document.querySelector ( '#nav' )
+// (default) direction: 'down'
+}
+// --> Result will contain all children nodes
+
+// after
+const selection = {
+  name: 'mySelection'
+, selector: () => document.querySelector ( '#nav' )
+// (default) direction: 'none'
+}
+// --> result will NOT be expanded with children nodes
+
+// To have same behavior as before we should use explicit - direction: 'down'
+```
+
+
 
 
 ## From 1.x.x to 2.x.x
