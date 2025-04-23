@@ -66,6 +66,13 @@ dom.define ({
               name: 'nav'
             , selector: ( extra ) => document.getElementById ( 'nav' )
             // extra   -> extra argument coming from the 'run' function
+           , direction : 'none'
+           // Direction is a extra scan instruction applied to the result of the selector.
+           // Values: 'up', 'down' or 'none'.
+           // 'none' -> will not expand the result.
+           // 'up'   -> will expand the result with all parent DOM nodes to the <body> tag.
+           // 'down' -> will expand the result with all child DOM nodes.
+           // If 'direction' is not specified, the default value is 'none'.
            , where : ({ item, i, END, length, up, down }, extra) => item.tagName === 'LI' ? item : null
             // item   -> selector element
             // i      -> index of the selector element
@@ -88,7 +95,7 @@ dom.run ( 'nav', extra ).map ( item => {
 const selection = {
     name: 'mySelection' // *required. A unique name for the selection
   , selector: () => document.querySelector('div')   // *required. A function that returns a DOM node or list of DOM node references
-  , direction : 'up' // optional. Values: 'up' or 'down'. Default: 'down'.
+  , direction : 'up' // optional. Values: 'none', 'up' or 'down'. Default: 'none'.
   , where : ({ item, i, END, length, up, down }) => item.classList.contains('myClass') ? item : null 
   // optional. A function that can filter nodes from selector function. Returns item to include it in selection, null for removing the item from the selection or END to stop the selection process. Use 'up' and 'down' arguments are functions to get the list of nodes in the current direction.
 }
