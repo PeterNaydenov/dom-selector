@@ -1,5 +1,8 @@
 # Release History
 
+### 3.0.0 ( 2025-04-23)
+- [x] Selectoin property 'direction' was extended with value 'none' - means that the result will not be expanded by default. Expanding the result of selection should be explicitly triggered by using the 'direction' property;
+
 
 
 ## 2.2.0 ( 2025-04-19)
