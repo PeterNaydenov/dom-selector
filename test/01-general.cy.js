@@ -14,8 +14,15 @@ const html = new VisualController ();
 
 describe ( 'DOM Selector', () => {
 
+before ( () => {
+            const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
+            d.id = 'root'
+
+            html.publish ( Example1, {}, 'root' )
+})
+
 afterEach ( () => {
-        html.destroy ('root')
+        // html.destroy ('root')
   })
 
 it ( 'Define simpliest selector', done => {
@@ -23,15 +30,14 @@ it ( 'Define simpliest selector', done => {
             const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
             d.id = 'root'
 
-            html.publish ( Example1, {}, 'root' )
             const dom = domSelector();
             dom.define ({
                     name: 'ul',
                     selector: () => d.getElementsByTagName ( 'ul' )
                 })
-            cy.wait ( 0 )
+            cy.wait ( 10 )
               .then ( () => {
-                            const r = dom.run ( 'ul' );
+                            const r = dom.run ( 'ul', d );
                             expect ( r.length ).to.equal ( 2 )
                             done ()
                 })
@@ -41,14 +47,14 @@ it ( 'Define simpliest selector', done => {
 
 it ( 'Scan deep', done => {
             cy.viewport ( 800, 650 )
-            const d = document.querySelector('[data-cy-root]');
+            const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
             d.id = 'root'
-            html.publish ( Example1, {}, 'root' )
 
             const dom = domSelector();
             dom.define ({
                           name : 'component'
                         , selector: () => d
+                        , direction : 'down'
                 })
 
             cy.wait ( 0 )
@@ -61,17 +67,17 @@ it ( 'Scan deep', done => {
 
 
 
-it ( 'Scan and filter', done => {
+it ( 'Scan deep and filter', done => {
             cy.viewport ( 800, 650 )
-            const d = document.querySelector('[data-cy-root]');
+            const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
             d.id = 'root'
-            html.publish ( Example1, {}, 'root' )
 
-            const dom = domSelector();
+            const dom = domSelector ();
             dom.define ({
                           name : 'component'
                         , selector: () => d
-                        , where : ({item, i}) => {
+                        , direction : 'down'
+                        , where : ({item, i }) => {
                                                 if ( item.tagName === 'SPAN' ) return true
                                                 return false
                                         }
@@ -82,22 +88,20 @@ it ( 'Scan and filter', done => {
                             expect ( r.length ).to.equal ( 4 )
                             done ()
                 })
-    }) // it Scan and filter
+    }) // it Scan deep and filter
 
 
 
 it ( 'Stop the deep scan', done => {
             cy.viewport ( 800, 650 )
-            const 
-                  d = document.querySelector ('[data-cy-root]')
-                , dom = domSelector ()
-                ;
+            const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
             d.id = 'root'
-            html.publish ( Example1, {}, 'root' )
-
+            const dom = domSelector ();
+            
             dom.define ({
                           name : 'component'
                         , selector: () => d
+                        , direction : 'down'
                         , where : ({item, i, END, length }) => {
                                                 if ( item.tagName !== 'SPAN' )  return null      // Continue only if SPAN element
                                                 return ( length < 2 ) ? item : END        // Stop when we found 2 SPAN elements
@@ -115,17 +119,15 @@ it ( 'Stop the deep scan', done => {
 
 it ( 'Stop the deep scan2', done => {
             cy.viewport ( 800, 650 )
-            
-            const 
-                  d = document.querySelector('[data-cy-root]')
-                , dom = domSelector()
-                ;
+            const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
             d.id = 'root'
-            html.publish ( Example1, {}, 'root' )
+            
+            const dom = domSelector();
 
             dom.define ({
                           name : 'component'
                         , selector: () => d
+                        , direction : 'down'
                         , where : ({item, i, END, length }, counter ) => {
                                     // item   -> selector element
                                     // i      -> index of the selector element
@@ -150,13 +152,10 @@ it ( 'Stop the deep scan2', done => {
 
 it ( 'Back scan to the body', done => { 
             cy.viewport ( 800, 650 )
-            
-            const 
-                  d = document.querySelector('[data-cy-root]')
-                , dom = domSelector ()
-                ;
+            const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
             d.id = 'root'
-            html.publish ( Example1, {}, 'root' )
+
+            const dom = domSelector ();
 
             dom.define ({
                           name : 'component'
@@ -176,21 +175,18 @@ it ( 'Back scan to the body', done => {
 
 it ( 'Selector index', done => {
         cy.viewport ( 800, 650 )
-        
-        const 
-              d = document.querySelector('[data-cy-root]')
-            , dom = domSelector()
+        const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
+        d.id = 'root'
+        const dom = domSelector()
             , tagCounter = new Set()
             ;
-
-        d.id = 'root'
-        html.publish ( Example1, {}, 'root' )
 
         cy.wait ( 0 )
           .then ( () => { 
                           dom.define ({
                                       name: 'list'
                                     , selector: () => d
+                                    , direction: 'down'
                                     , where : ({item, i, END }, tagCounter ) => {
                                                               tagCounter.add ( i )
                                                               return ( i < 9 ) ? item : END
@@ -208,14 +204,10 @@ it ( 'Selector index', done => {
 
 it ( 'Find span elements inside a list', done => {
         cy.viewport ( 800, 650 )
-        
-        const 
-              d = document.querySelector('[data-cy-root]')
-            , dom = domSelector()
-            ;
-
+        const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
         d.id = 'root'
-        html.publish ( Example1, {}, 'root' )
+        
+        const dom = domSelector();
 
         cy.wait ( 0 )
           .then ( () => {
@@ -240,13 +232,9 @@ it ( 'Find span elements inside a list', done => {
 
 it ( 'Find only li that have span', done => {
         cy.viewport ( 800, 650 )
-        const 
-              d = document.querySelector('[data-cy-root]')
-            , dom = domSelector()
-            ;
-          
+        const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
         d.id = 'root'
-        html.publish ( Example1, {}, 'root' )
+        const dom = domSelector ();
 
         cy.wait ( 0 )
           .then ( () => {
@@ -271,14 +259,11 @@ it ( 'Find only li that have span', done => {
 
 it ( 'Arguments for method "Run" available as arguments for the selector function', done => {
         cy.viewport ( 800, 650 )
-        const 
-              d = document.querySelector('[data-cy-root]')
-            , dom = domSelector ()
-            ;
-          
+        const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
         d.id = 'root'
-        html.publish ( Example1, {}, 'root' )
-
+        
+        const dom = domSelector ();
+          
         cy.wait ( 0 )
           .then ( () => {
                 dom.define ({ 
@@ -296,14 +281,11 @@ it ( 'Arguments for method "Run" available as arguments for the selector functio
 
 it ( 'Parameterized selector with filter', done => {
         cy.viewport ( 800, 650 )
-        const 
-              d = document.querySelector('[data-cy-root]')
-            , dom = domSelector ()
-            ;
-          
+        const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
         d.id = 'root'
-        html.publish ( Example1, {}, 'root' )
 
+        const dom = domSelector ();
+          
         cy.wait ( 0 )
           .then ( () => {
                     dom.define ({   // Define a parameterized selector. Result should be filtered (only elements that contains SPAN )
