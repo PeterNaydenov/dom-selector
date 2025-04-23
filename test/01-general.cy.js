@@ -21,9 +21,7 @@ before ( () => {
             html.publish ( Example1, {}, 'root' )
 })
 
-afterEach ( () => {
-        // html.destroy ('root')
-  })
+
 
 it ( 'Define simpliest selector', done => {
             cy.viewport ( 800, 650 )
