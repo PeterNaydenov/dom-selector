@@ -174,7 +174,7 @@ dom.define ({   // Define a parameterized selector. Result should be filtered (o
                                           for ( let child of down(item) ) {
                                                     if ( child.tagName === 'SPAN' )   res.push ( item )
                                                   }
-                                          return ( res.length > 0 ) ? res : null
+                                          return res
                                 } // where
                         })
 let r = null                        
