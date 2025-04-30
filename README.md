@@ -122,6 +122,44 @@ const selection = {
 - `where`: Optional. A function that can filter nodes from selector function. Returns the item to select, null to remove. Return END to stop the selection process;
 
 
+
+## Examples
+
+### Parameterized selector
+Selector can recive parameters and can be parameterized. Here is an example:
+```js
+dom.define ({   // Define a parameterized selector. Result should be filtered (only elements that contains SPAN )
+                              name: 'has-span'
+                            , selector: ( target ) => document.querySelectorAll ( target )
+                            , where: ({item, i, END, length, down, up }) => {
+                                          let res =[];
+                                          for ( let child of down(item) ) {
+                                                    if ( child.tagName === 'SPAN' )   res.push ( item )
+                                                  }
+                                          return ( res.length > 0 ) ? res : null
+                                } // where
+                        })
+let r = null                        
+r = dom.run ( 'has-span', 'a' )
+//  --> r will contain list of all <a> elements that have <span> inside
+r = dom.run ( 'has-span', 'li' )
+// --> r will contain list of all <li> elements that have <span> inside
+r = dom.run ( 'has-span', 'p' )
+// --> r will contain list of all <p> elements that have <span> inside
+```
+Here is another example:
+```js
+// let's have event target as a parameter
+dom.define ({   // Define a parameterized selector. Result should be filtered (only elements that contains SPAN )
+                              name: 'siblings'
+                            , selector: ( target ) => target.parentElement.children
+                        })
+let r = null
+r = dom.run ( 'siblings', document.querySelector ( 'li' ) )
+// --> r will contain list of all <li> siblings of the selected <li> element  
+```
+
+
 ## Links
 - [History of changes](https://github.com/PeterNaydenov/dom-selector/blob/main/Changelog.md)
 - [Migration guide](https://github.com/PeterNaydenov/dom-selector/blob/main/Migration.guide.md)
