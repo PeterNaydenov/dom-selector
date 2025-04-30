@@ -187,13 +187,14 @@ r = dom.run ( 'has-span', 'p' )
 ```
 Here is another example:
 ```js
-// let's have event target as a parameter
 dom.define ({   // Define a parameterized selector. Result should be filtered (only elements that contains SPAN )
                               name: 'siblings'
                             , selector: ( target ) => target.parentElement.children
                         })
 let r = null
-r = dom.run ( 'siblings', document.querySelector ( 'li' ) )
+// let's have a reference to a single DOM element
+const node = document.querySelector ( 'li' )
+r = dom.run ( 'siblings', node )
 // --> r will contain list of all <li> siblings of the selected <li> element  
 ```
 
