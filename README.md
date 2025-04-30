@@ -53,19 +53,19 @@ dom.define ({
     , selector: () => document.querySelectorAll ( 'li' )  
 })
 
-// Run a selection
+// Run a selection. Result is always an array
 dom.run ( 'li' )
 
-// use the last result of the selection. Do not trigger a selection again.
+// Method 'use' will use the last result of the selection.
 for ( let item of dom.use ( 'li' )) {
       // do something with the item
   }
 
 // Example:
 dom.define ({
-              name: 'nav'
-            , selector: ( extra ) => document.getElementById ( 'nav' )
-            // extra   -> extra argument coming from the 'run' function
+              name: 'nav' // name of the selection
+            , selector: ( ...extra ) => document.getElementById ( 'nav' )
+            // ...extra   -> extra arguments coming from the 'run' function
            , direction : 'none'
            // Direction is a extra scan instruction applied to the result of the selector.
            // Values: 'up', 'down' or 'none'.
@@ -73,14 +73,14 @@ dom.define ({
            // 'up'   -> will expand the result with all parent DOM nodes to the <body> tag.
            // 'down' -> will expand the result with all child DOM nodes.
            // If 'direction' is not specified, the default value is 'none'.
-           , where : ({ item, i, END, length, up, down }, extra) => item.tagName === 'LI' ? item : null
+           , where : ({ item, i, END, length, up, down }, ...extra) => item.tagName === 'LI' ? item : null
             // item   -> selector element
             // i      -> index of the selector element
             // length -> length of the result array
             // END    -> Symbol to stop the scan
             // up     -> up() function returns a list of all parent DOM nodes.
             // down   -> down() function returns a list of all nested DOM nodes.
-            // extra   -> extra argument coming from the 'run' function
+            // ...extra   -> extra argument coming from the 'run' function
             })
 // dom.run ( 'nav') -> will collect all <li> elements inside #nav
 dom.run ( 'nav', extra ).map ( item => {
