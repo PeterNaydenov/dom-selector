@@ -125,6 +125,44 @@ const selection = {
 
 ## Examples
 
+
+
+### Collect child elements of selected element
+
+```js
+dom.define ({   // Define a selector. Result should be filtered (only elements that are <li>)
+            name: 'children'
+          , selector: () => document.querySelector ( '.nav' )
+          , direction: 'down' // Extends the selector result with all child DOM nodes
+          , where: ({item, i, END, length, down, up }, selectedTagName ) => item.tagName === selectedTagName ? item : null
+          // Function 'where' will recieve extra arguments from the 'run' function
+    })
+let r = null
+r = dom.run ( 'children', 'LI' ) // 'LI' is a selectedTagName
+// --> r will contain list of all <li> children of element with class 'nav'
+// If I want to collect only span elements from the navigation menu:
+r = dom.run ( 'children', 'SPAN' )
+// --> r will contain list of all <span> children of element with class 'nav'
+
+// Alternative way - don't use direction property:
+dom.define ({
+      name: 'children-span'
+      , selector: () => document.querySelector ( '.nav' )
+      , where: ({item, i, END, length, down, up }) => {
+                // item here is a full navigation block
+                const res = [];
+                for ( let child of down(item) ) { // down(item) -> returns a list of all nested DOM nodes
+                        if ( child.tagName === 'SPAN' )   res.push ( child )
+                    }
+                return res
+           } // where func.
+})
+r = dom.run ( 'children-span' )
+// --> r will contain list of all <span> children of element with class 'nav'
+```
+
+
+
 ### Parameterized selector
 Selector can recive parameters and can be parameterized. Here is an example:
 ```js
