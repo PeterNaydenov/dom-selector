@@ -322,8 +322,30 @@ it ( 'Selector.final', done => {
                 expect ( r ).to.equal ( 9 )
                 done ()
             })
-
 }) // it Selector.final
+
+
+
+it ( 'Dom.use & selector.final', done => {
+        cy.viewport ( 800, 650 )
+        const d = document.querySelector('[data-cy-root]') || document.createElement ( 'div' );
+        d.id = 'root'
+        
+        const dom = domSelector ();
+          
+        cy.wait ( 0 )
+          .then ( () => {
+                dom.define ({ 
+                            name: 'li-span'
+                          , selector: ( selector ) => d.querySelectorAll ( selector ) // selector always returns an array
+                          , final: ( result ) => result.length // Method final can refine the result. Can return anything different from result of selection
+                      })
+                dom.run ( 'li-span', 'li' )
+                const r = dom.use ( 'li-span' )
+                expect ( r ).to.equal ( 9 )
+                done ()
+            })
+}) // it Dom.use & selector.final
 
 
 
