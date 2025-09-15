@@ -161,10 +161,12 @@ function domSelector () {
      * @param {string} name - Name of the selection
      * @returns {Array} - List of DOM elements. Empty array if the selection was not found.
      */
-    function use ( name ) {
-                const record = last.get( name );
-                if ( record == null ) return []
-                return record
+    function use ( name, ...args ) {
+                const cached = last.get( name );
+                if ( cached == null ) return []
+                let record = store.get( name );
+                let { final } = record;
+                return final ( cached, ...args )
         }  // use func.
 
 
