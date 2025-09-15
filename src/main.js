@@ -5,6 +5,7 @@ function domSelector () {
     const 
           store = new Map() // Storage for selector definitions
         , last  = new Map() // Storage for last selected elements and remembered elements
+        , MISSING = Symbol('missing___')
         ;
 
     /**
@@ -13,6 +14,7 @@ function domSelector () {
      * @property {Function} selector - Function that returns DOM element as the starting point of the selection or list of DOM elements
      * @property {Function} [where] - Function that returns DOM element or null if the element should be filtered out. Returns END symbol if the selection should be stopped
      * @property {'up'|'down'} [direction] - Direction of DOM scan if selector returns a single DOM element
+     * @property {Function} [final] - Function that can reshape or refine the result of selection
      */
 
 
@@ -23,12 +25,14 @@ function domSelector () {
      * @returns {boolean} - True if the selection was defined successfully
      */
     function define ( selection ) {
-                let { name, selector, where, direction } = selection;
+                let { name, selector, where, direction, final } = selection;
+               
                 if ( !name || !selector || !(selector instanceof Function) )   return false                
                 if ( !where     )   where = ({item}) => item  // Default where
+                if ( !final     )   final = ( result ) => result
                 if ( !direction )   direction = 'none'  // Default direction. Possible values: 'up', 'down' and 'none'
                 
-                store.set ( name, { name, selector, where, direction })
+                store.set ( name, { name, selector, where, direction, final })
                 return true
         } // define func.
 
@@ -144,10 +148,10 @@ function domSelector () {
                     let record = store.get( name );
                     if ( record == null ) return []
 
-                    let { name:nm, selector, direction, where } = record;
+                    let { name:nm, selector, direction, where, final } = record;
                     let result = _select ( selector(...args), direction, where, ...args );
                     last.set ( name, result )
-                    return result
+                    return final ( result, ...args )
         } // run func.
 
 
