@@ -1,5 +1,11 @@
 # Release History
 
+
+### 3.1.0 ( 2025-09-15)
+- [x] Selector.final in selector definition(optional). Function that can refine the results of selection.
+
+
+
 ### 3.0.0 ( 2025-04-23)
 - [x] Selectoin property 'direction' was extended with value 'none' - means that the result will not be expanded by default. Expanding the result of selection should be explicitly triggered by using the 'direction' property;
 
