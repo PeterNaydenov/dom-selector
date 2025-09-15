@@ -74,6 +74,7 @@ dom.define ({
            // 'down' -> will expand the result with all child DOM nodes.
            // If 'direction' is not specified, the default value is 'none'.
            , where : ({ item, i, END, length, up, down }, ...extra) => item.tagName === 'LI' ? item : null
+            // `where` will be executed for each item of the result array.
             // item   -> selector element
             // i      -> index of the selector element
             // length -> length of the result array
@@ -81,6 +82,9 @@ dom.define ({
             // up     -> up() function returns a list of all parent DOM nodes.
             // down   -> down() function returns a list of all nested DOM nodes.
             // ...extra   -> extra argument coming from the 'run' function
+            , final : ( result ) => result
+            // `final` will be executed once on the result array
+            // result -> the result of the selection. You can do extra work before returning the result
             })
 // dom.run ( 'nav') -> will collect all <li> elements inside #nav
 dom.run ( 'nav', extra ).map ( item => {
@@ -98,6 +102,9 @@ const selection = {
   , direction : 'up' // optional. Values: 'none', 'up' or 'down'. Default: 'none'.
   , where : ({ item, i, END, length, up, down }) => item.classList.contains('myClass') ? item : null 
   // optional. A function that can filter nodes from selector function. Returns item to include it in selection, null for removing the item from the selection or END to stop the selection process. Use 'up' and 'down' arguments are functions to get the list of nodes in the current direction.
+  , final ( result ) => { /** Do something with the result. Return the final result */}
+  // optional. A function that can modify the result before returning it
+  // 'final' is available after version 3.1.0
 }
 
 
