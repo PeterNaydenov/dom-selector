@@ -45,6 +45,6 @@ declare function domSelector(): {
          */
         final?: Function;
     }, ...args?: any[]) => any[];
-    use: (name: string) => any[];
+    use: (name: string, ...args: any[]) => any[];
 };
 //# sourceMappingURL=main.d.ts.map
