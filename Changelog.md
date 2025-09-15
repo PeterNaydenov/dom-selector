@@ -1,8 +1,14 @@
 # Release History
 
 
+## 3.1.1 ( 2025-09-15)
+- [x] Fix: Results of 'run' and 'use' are different if selector.final is defined;
+
+
+
 ### 3.1.0 ( 2025-09-15)
 - [x] Selector.final in selector definition(optional). Function that can refine the results of selection.
+- [ ] Bug: Results of 'run' and 'use' are different if selector.final is defined;
 
 
 
