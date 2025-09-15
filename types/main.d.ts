@@ -17,6 +17,10 @@ declare function domSelector(): {
          * - Direction of DOM scan if selector returns a single DOM element
          */
         direction?: "up" | "down";
+        /**
+         * - Function that can reshape or refine the result of selection
+         */
+        final?: Function;
     }) => boolean;
     remember: (name: string, domElement: HTMLElement | HTMLCollection | NodeList | Array<HTMLElement>) => void;
     run: (name: string | {
@@ -36,6 +40,10 @@ declare function domSelector(): {
          * - Direction of DOM scan if selector returns a single DOM element
          */
         direction?: "up" | "down";
+        /**
+         * - Function that can reshape or refine the result of selection
+         */
+        final?: Function;
     }, ...args?: any[]) => any[];
     use: (name: string) => any[];
 };
