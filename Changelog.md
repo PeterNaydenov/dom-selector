@@ -1,6 +1,13 @@
 # Release History
 
 
+
+## 3.1.2 ( 2025-03-24)
+- [x] Dev deps update. Typescript v.6.0.2;
+- [x] Types update according typescript v.6.0.2;
+
+
+
 ## 3.1.1 ( 2025-09-15)
 - [x] Fix: Results of 'run' and 'use' are different if selector.final is defined;
 
