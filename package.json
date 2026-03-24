@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "rollup -c",
+    "build": "vite build",
     "postbuild": "tsc -p tsconfig.json",
     "preview": "vite preview",
     "test": "cypress run --component --browser chrome"
