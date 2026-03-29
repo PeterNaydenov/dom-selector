@@ -40,7 +40,7 @@
     "cypress": "^15.12.0",
     "typescript": "^6.0.2",
     "vite": "^8.0.2",
-    "vue": "^3.5.30"
+    "vue": "^3.5.31"
   },
   "keywords": [
     "dom",
