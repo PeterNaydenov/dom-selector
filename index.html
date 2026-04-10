@@ -7,17 +7,36 @@
     <title>Vite App</title>
   </head>
   <body>
-    <div id="app"></div> 
-    
-    <ul class="nav">
-      <li id="i1">text 1</li>
-      <li id="i2">text 2</li>
-      <li id="i3">text 3</li>
-      <li id="i4">text 4</li>
-    </ul>
+    <div id="app">
+      <div>
+        <h1>TITLE</h1>
+        <p>Lorem ipsum dolor <span>sit</span> amet consectetur adipisicing elit. 
+          Sint fuga necessitatibus, vero ea optio ipsa 
+          repudiandae <a href="#">libero</a> excepturi blanditiis placeat 
+          maxime? Iste, repudiandae? Quos <span>possimus</span> quis unde 
+          maxime sequi similique alias rerum? Qui, debitis 
+          explicabo quos rerum laudantium iste quod!</p>
+        <p>Quos possimus quis unde maxime sequi similique alias rerum</p>
+      </div>
+      <ul class="list">
+        <li><a href="#">first link</a></li>
+        <li><a href="#">second link</a></li>
+        <li><a href="#"><span>third</span> link</a></li>
+        <li><a href="#">forth link</a></li>
+        <li><a href="#">fifth link</a></li>
+      </ul>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, cupiditate?</p>
+      <ul class="nav">
+        <li><a href="#">home</a></li>
+        <li><a href="#">services</a></li>
+        <li><a href="#"><span>about</span></a></li>
+        <li><a href="#">contact</a></li>
+      </ul>
+    </div>
     
     <script type="module">
       import DomSelector from "./src/main.js";
+      window.DomSelector = DomSelector;
       const dom = new DomSelector();
       console.log(dom);
     </script>
