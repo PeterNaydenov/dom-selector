@@ -67,7 +67,7 @@ dom.define ({
             , selector: ( ...extra ) => document.getElementById ( 'nav' )
             // ...extra   -> extra arguments coming from the 'run' function
            , direction : 'none'
-           // Direction is a extra scan instruction applied to the result of the selector.
+           // Direction is an extra scan instruction applied to the result of the selector.
            // Values: 'up', 'down' or 'none'.
            // 'none' -> will not expand the result.
            // 'up'   -> will expand the result with all parent DOM nodes to the <body> tag.
@@ -101,7 +101,7 @@ const selection = {
   , selector: () => document.querySelector('div')   // *required. A function that returns a DOM node or list of DOM node references
   , direction : 'up' // optional. Values: 'none', 'up' or 'down'. Default: 'none'.
   , where : ({ item, i, END, length, up, down }) => item.classList.contains('myClass') ? item : null 
-  // optional. A function that can filter nodes from selector function. Returns item to include it in selection, null for removing the item from the selection or END to stop the selection process. Use 'up' and 'down' arguments are functions to get the list of nodes in the current direction.
+  // optional. A function that can filter nodes from selector function. Returns item to include it in selection, null for removing the item from the selection or END to stop the selection process. The 'up' and 'down' arguments are functions to get the list of nodes in the current direction.
   , final ( result ) => { /** Do something with the result. Return the final result */}
   // optional. A function that can modify the result before returning it
   // 'final' is available after version 3.1.0
@@ -109,7 +109,7 @@ const selection = {
 
 
 // Example:
-// Select only <li> elements that has a <span> inside
+// Select only <li> elements that have a <span> inside
 const selection = { 
     name: 'li-span' 
   , selector: () => document.querySelectorAll ( 'li' ) 
@@ -125,8 +125,8 @@ const selection = {
 ```
 
 - `selector` :  A function that returns a DOM node or list of DOM node references. If the function returns a list of DOM nodes, `DOM Selector` will use them as a result. If the function returns a single DOM node, `DOM Selector` will use it as a starting point for DOM scanning and will return a list of DOM nodes according to the `direction` property;
-- `direction`: If the selector function returns a single DOM node, `DOM Selector` will use it as a starting point for DOM scanning and will return a list of DOM nodes according to the `direction` property. Value 'up' will scan the DOM tree parents up to <body> tag. Value 'down' will scan the DOM tree children down to the last child. Default: 'down'. This property is ignored if the selector function returns a list of DOM nodes;
-- `where`: Optional. A function that can filter nodes from selector function. Returns the item to select, null to remove. Return END to stop the selection process;
+- `direction`: If the selector function returns a single DOM node, `DOM Selector` will use it as a starting point for DOM scanning and will return a list of DOM nodes according to the `direction` property. Value 'up' will scan the DOM tree parents up to <body> tag. Value 'down' will scan the DOM tree children down to the last child. Default: 'none'. This property is ignored if the selector function returns a list of DOM nodes;
+- `where`: Optional. A function that can filter nodes from selector function. Returns the item to include it in the selection, null to skip it, or END to stop the scan. The function may also return an array of items — each element of the array is added to the result (this is useful when a single source item maps to many target items);
 
 
 
@@ -142,7 +142,7 @@ dom.define ({   // Define a selector. Result should be filtered (only elements t
           , selector: () => document.querySelector ( '.nav' )
           , direction: 'down' // Extends the selector result with all child DOM nodes
           , where: ({item, i, END, length, down, up }, selectedTagName ) => item.tagName === selectedTagName ? item : null
-          // Function 'where' will recieve extra arguments from the 'run' function
+          // Function 'where' will receive extra arguments from the 'run' function
     })
 let r = null
 r = dom.run ( 'children', 'LI' ) // 'LI' is a selectedTagName
@@ -171,17 +171,16 @@ r = dom.run ( 'children-span' )
 
 
 ### Parameterized selector
-Selector can recive parameters and can be parameterized. Here is an example:
+Selector can receive parameters and can be parameterized. Here is an example:
 ```js
-dom.define ({   // Define a parameterized selector. Result should be filtered (only elements that contains SPAN )
+dom.define ({   // Define a parameterized selector. Result should be filtered (only elements that contain SPAN)
                               name: 'has-span'
                             , selector: ( target ) => document.querySelectorAll ( target )
                             , where: ({item, i, END, length, down, up }) => {
-                                          let res =[];
                                           for ( let child of down(item) ) {
-                                                    if ( child.tagName === 'SPAN' )   res.push ( item )
+                                                    if ( child.tagName === 'SPAN' )   return item
                                                   }
-                                          return res
+                                          return null
                                 } // where
                         })
 let r = null                        
@@ -194,7 +193,7 @@ r = dom.run ( 'has-span', 'p' )
 ```
 Here is another example:
 ```js
-dom.define ({   // Define a parameterized selector. Result should be filtered (only elements that contains SPAN )
+dom.define ({   // Define a parameterized selector that returns the siblings of a node
                               name: 'siblings'
                             , selector: ( target ) => target.parentElement.children
                         })
@@ -202,7 +201,7 @@ let r = null
 // let's have a reference to a single DOM element
 const node = document.querySelector ( 'li' )
 r = dom.run ( 'siblings', node )
-// --> r will contain list of all <li> siblings of the selected <li> element  
+// --> r will contain list of all siblings of the selected <li> element  
 ```
 
 
