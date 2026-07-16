@@ -16,7 +16,8 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
-    headless: false,
+    // Headed Chrome by default for local work; HEADLESS=1 (or CI) runs headless.
+    headless: !!process.env.HEADLESS || !!process.env.CI,
     channel: 'chrome',
   },
   projects: [
