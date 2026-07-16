@@ -14,9 +14,9 @@ declare function domSelector(): {
          */
         where?: Function | undefined;
         /**
-         * - Direction of DOM scan if selector returns a single DOM element
+         * - Direction of DOM scan if selector returns a single DOM element. Default: 'none'.
          */
-        direction?: "up" | "down" | undefined;
+        direction?: "none" | "up" | "down" | undefined;
         /**
          * - Function that can reshape or refine the result of selection
          */
@@ -37,9 +37,9 @@ declare function domSelector(): {
          */
         where?: Function | undefined;
         /**
-         * - Direction of DOM scan if selector returns a single DOM element
+         * - Direction of DOM scan if selector returns a single DOM element. Default: 'none'.
          */
-        direction?: "up" | "down" | undefined;
+        direction?: "none" | "up" | "down" | undefined;
         /**
          * - Function that can reshape or refine the result of selection
          */
