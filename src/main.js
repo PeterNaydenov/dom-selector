@@ -5,7 +5,6 @@ function domSelector () {
     const 
           store = new Map() // Storage for selector definitions
         , last  = new Map() // Storage for last selected elements and remembered elements
-        , MISSING = Symbol('missing___')
         ;
 
     /**
@@ -13,7 +12,7 @@ function domSelector () {
      * @property {string} name - Name of the selection
      * @property {Function} selector - Function that returns DOM element as the starting point of the selection or list of DOM elements
      * @property {Function} [where] - Function that returns DOM element or null if the element should be filtered out. Returns END symbol if the selection should be stopped
-     * @property {'up'|'down'} [direction] - Direction of DOM scan if selector returns a single DOM element
+     * @property {'up'|'down'|'none'} [direction] - Direction of DOM scan if selector returns a single DOM element. Default: 'none'.
      * @property {Function} [final] - Function that can reshape or refine the result of selection
      */
 
@@ -127,7 +126,6 @@ function domSelector () {
                                         if ( r )   result.push ( ...convertToArray ( r ))
                                 }
                     }
-                else    result == source
                 return result
         } // _select func.
 
@@ -143,12 +141,13 @@ function domSelector () {
                     if ( typeof name !== 'string') {   // When we want to register a new selector and run it immediately
                                     let check = define ( name )
                                     if ( !check ) return []
+                                    name = name.name   // After define, look up by the registered name
                             }
-                                        
+
                     let record = store.get( name );
                     if ( record == null ) return []
 
-                    let { name:nm, selector, direction, where, final } = record;
+                    let { selector, direction, where, final } = record;
                     let result = _select ( selector(...args), direction, where, ...args );
                     last.set ( name, result )
                     return final ( result, ...args )
@@ -164,8 +163,10 @@ function domSelector () {
     function use ( name, ...args ) {
                 const cached = last.get( name );
                 if ( cached == null ) return []
-                let record = store.get( name );
-                let { final } = record;
+                // Selector may not be registered (e.g. only `remember`-ed).
+                // Fall back to identity so remembered references still work.
+                const record = store.get( name );
+                const final   = record ? record.final : ( result ) => result;
                 return final ( cached, ...args )
         }  // use func.
 
@@ -178,13 +179,12 @@ function domSelector () {
      * @returns {void}
      */
     function remember ( name, domElement ) {
-            // Add to last domElement if is an array, otherwise but it in an array
-             if ( domElement?.length ) {
-                        last.set ( name, domElement )
-                        return
-                }
-            last.set ( name, [ domElement ] )
-        } // add func.
+            // Normalize to a real array so `use` always returns an array.
+            // Note: a `.length` check is not enough here — <form> and <select>
+            // elements have a numeric `.length` of their own, and an empty
+            // NodeList has `.length === 0` and would be double-wrapped.
+            last.set ( name, convertToArray ( domElement ))
+        } // remember func.
 
 
 
