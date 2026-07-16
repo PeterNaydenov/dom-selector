@@ -45,24 +45,23 @@ function e() {
 		return l;
 	}
 	function s(r, ...i) {
-		if (typeof r != "string" && !n(r)) return [];
+		if (typeof r != "string") {
+			if (!n(r)) return [];
+			r = r.name;
+		}
 		let a = e.get(r);
 		if (a == null) return [];
-		let { name: s, selector: c, direction: l, where: u, final: d } = a, f = o(c(...i), l, u, ...i);
-		return t.set(r, f), d(f, ...i);
+		let { selector: s, direction: c, where: l, final: u } = a, d = o(s(...i), c, l, ...i);
+		return t.set(r, d), u(d, ...i);
 	}
 	function c(n, ...r) {
 		let i = t.get(n);
 		if (i == null) return [];
-		let { final: a } = e.get(n);
-		return a(i, ...r);
+		let a = e.get(n);
+		return (a ? a.final : (e) => e)(i, ...r);
 	}
 	function l(e, n) {
-		if (n?.length) {
-			t.set(e, n);
-			return;
-		}
-		t.set(e, [n]);
+		t.set(e, a(n));
 	}
 	return {
 		define: n,
