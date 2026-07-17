@@ -49,39 +49,47 @@ test.describe('DOM Selector', () => {
   test('Stop the deep scan', async ({ page }) => {
     const result = await page.evaluate(() => {
       const dom = window.DomSelector()
-      const END = Symbol('end___')
+      // END is provided per-call by `_select` via the where context.
+      // Returning a self-made Symbol would not match and the scan would
+      // never stop — see the "Tips & gotchas" section in README.md.
       dom.define({
         name: 'component',
         selector: (el) => el,
         direction: 'down',
-        where: ({ item, length }) => {
+        where: ({ item, length, END }) => {
           if (item.tagName !== 'SPAN') return null
           return length < 2 ? item : END
         }
       })
       return dom.run('component', document.querySelector('#app')).length
     })
-    expect(result).toBeGreaterThan(0)
+    // Without END the scan would collect all 4 spans. With END, we stop
+    // after the 2nd span, so the result holds exactly 2 elements.
+    expect(result).toBe(2)
   })
 
   test('Stop the deep scan2', async ({ page }) => {
     const result = await page.evaluate(() => {
+      const app = document.querySelector('#app')
       const dom = window.DomSelector()
-      const END = Symbol('end___')
       dom.define({
         name: 'component',
-        selector: (el) => el,
+        selector: () => app,                 // capture the root via closure
         direction: 'down',
-        where: ({ item }, counter) => {
+        where: ({ item, END }, counter) => {
+          // `counter` is now correctly bound to the second positional arg
+          // of where, which is the first extra arg passed to `run` below.
           if (counter.value >= 2) return END
           if (item.tagName !== 'SPAN') return null
           counter.value++
           return item
         }
       })
-      return dom.run('component', document.querySelector('#app'), { value: 0 }).length
+      return dom.run('component', { value: 0 }).length
     })
-    expect(result).toBeGreaterThan(0)
+    // Counter stops the scan at 2 spans. With a non-matching END the scan
+    // would walk all 31 descendants and the assertion below would fail.
+    expect(result).toBe(2)
   })
 
   test('Back scan to the body', async ({ page }) => {
@@ -100,21 +108,29 @@ test.describe('DOM Selector', () => {
   test('Selector index', async ({ page }) => {
     const result = await page.evaluate(() => {
       const dom = window.DomSelector()
-      const END = Symbol('end___')
       const tagCounter = new Set()
       dom.define({
         name: 'list',
         selector: (el) => el,
         direction: 'down',
-        where: ({ item, i }) => {
+        where: ({ item, i, END }) => {
           tagCounter.add(i)
           return i < 9 ? item : END
         }
       })
       dom.run('list', document.querySelector('#app'))
-      return tagCounter.size > 0 && tagCounter.has(0) && tagCounter.has(9)
+      // With END working, the scan stops as soon as the where returns END
+      // (at i === 9). tagCounter should hold exactly { 0..9 } = 10 entries.
+      // With the old homemade-Symbol bug, the scan would walk all 31
+      // descendants and tagCounter.size would be 31.
+      return {
+        size: tagCounter.size,
+        hasZero: tagCounter.has(0),
+        hasNine: tagCounter.has(9),
+        hasTen: tagCounter.has(10)
+      }
     })
-    expect(result).toBe(true)
+    expect(result).toEqual({ size: 10, hasZero: true, hasNine: true, hasTen: false })
   })
 
   test('Find span elements inside a list', async ({ page }) => {
