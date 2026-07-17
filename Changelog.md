@@ -2,6 +2,17 @@
 
 
 
+### 3.1.4 ( 2026-07-17 )
+- [x] Fix: `up()` (the `direction: 'up'` generator) no longer throws `TypeError: Cannot read properties of null (reading 'tagName')` when the starting element is detached from the document. A detached element now yields itself and stops, instead of crashing;
+- [x] Fix: `define()` no longer throws when called with `null`, `undefined`, or any non-object argument. It now returns `false` (the same shape as the other "bad input" paths) instead of attempting to destructure a missing value;
+- [x] Fix: `run()` no longer throws when called with no arguments, `null`, a number, or any other non-string non-object. Bad input now returns `[]` like a missing selector name would, instead of crashing inside the inline-`define` path;
+- [x] Fix: re-`define()`-ing a name now invalidates the cached result. Previously, `define({name: 'x', selector: () => B}); use('x')` could return the cached result of the previous selector `A`; now `use` returns `[]` until the new selector is `run`. Callers who want the old "stale" behaviour can call `run` before `use` to repopulate the cache;
+- [x] Tests: added 8 new regression cases to `test/02-bug-fixes.spec.js` covering the four fixes above plus the previously-untested "throwing selector propagates the error" behaviour;
+- [x] Types / JSDoc: tightened the JSDoc and re-generated `types/main.d.ts` so `WhereContext`, `WalkFn`, `Selection`, and `DomSelector` are exported as named types; replaced the loose `Function` typedefs for `selector` / `where` / `final` with proper callback signatures; corrected `run` and `use` return types (anything `final` returns, not always `Array`); documented that `run` forwards extra args to *all three* of `selector` / `where` / `final` while `use` forwards them only to `final`; fixed the "Aditional" typo in the `_select` JSDoc;
+
+
+
+
 ### 3.1.3 ( 2026-07-16 )
 - [x] Fix: `use()` no longer crashes with `TypeError: Cannot destructure property 'final' of 'record' as it is undefined.` when called for a name that was only stored via `remember()` (no matching selector in the store). Falls back to identity when no selector record is found;
 - [x] Fix: `run()` with a selection object (register-and-run pattern) used to silently return `[]` because the inline `define` stored the selection under `selection.name` but `run` then tried to look it up using the whole object. `run` now re-binds the name to `selection.name` after the inline define;
