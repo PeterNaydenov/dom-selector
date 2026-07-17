@@ -1,4 +1,3 @@
-export default domSelector;
 export type WhereContext = {
     /**
      * The current element from the source list.
@@ -38,15 +37,15 @@ export type Selection = {
     /**
      * Optional. Default: `({item}) => item`.
      */
-    where?: ((ctx: WhereContext, ...args: any[]) => Element | null | symbol | Element[]) | undefined;
+    where?: (ctx: WhereContext, ...args: any[]) => Element | null | symbol | Element[];
     /**
      * Optional. Default: `'none'`.
      */
-    direction?: "none" | "up" | "down" | undefined;
+    direction?: 'up' | 'down' | 'none';
     /**
      * Optional. Default: identity.
      */
-    final?: ((result: any[], ...args: any[]) => any) | undefined;
+    final?: (result: any[], ...args: any[]) => any;
 };
 export type DomSelector = {
     /**
@@ -106,4 +105,5 @@ export type DomSelector = {
  *   dom.run('links');
  */
 declare function domSelector(): DomSelector;
+export default domSelector;
 //# sourceMappingURL=main.d.ts.map
