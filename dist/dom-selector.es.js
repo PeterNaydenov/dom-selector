@@ -1,20 +1,21 @@
 //#region src/main.js
 function e() {
 	let e = /* @__PURE__ */ new Map(), t = /* @__PURE__ */ new Map();
-	function n(t) {
-		let { name: n, selector: r, where: i, direction: a, final: o } = t;
-		return !n || !r || !(r instanceof Function) ? !1 : (i ||= ({ item: e }) => e, o ||= (e) => e, a ||= "none", e.set(n, {
-			name: n,
-			selector: r,
-			where: i,
-			direction: a,
-			final: o
-		}), !0);
+	function n(n) {
+		if (!n) return !1;
+		let { name: r, selector: i, where: a, direction: o, final: s } = n;
+		return !r || !i || !(i instanceof Function) ? !1 : (a ||= ({ item: e }) => e, s ||= (e) => e, o ||= "none", e.set(r, {
+			name: r,
+			selector: i,
+			where: a,
+			direction: o,
+			final: s
+		}), t.delete(r), !0);
 	}
 	function* r(e, t = !1) {
 		if (yield e, t) return;
 		let n = e.parentElement;
-		n.tagName === "BODY" && (t = !0), yield* r(n, t);
+		n && (n.tagName === "BODY" && (t = !0), yield* r(n, t));
 	}
 	function* i(e) {
 		yield e;
