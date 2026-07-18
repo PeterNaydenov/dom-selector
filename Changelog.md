@@ -2,6 +2,11 @@
 
 
 
+### 3.1.5 ( 2026-07-18 )
+- [x] Skill for DOM Selector is added;
+
+
+
 ### 3.1.4 ( 2026-07-17 )
 - [x] Fix: `up()` (the `direction: 'up'` generator) no longer throws `TypeError: Cannot read properties of null (reading 'tagName')` when the starting element is detached from the document. A detached element now yields itself and stops, instead of crashing;
 - [x] Fix: `define()` no longer throws when called with `null`, `undefined`, or any non-object argument. It now returns `false` (the same shape as the other "bad input" paths) instead of attempting to destructure a missing value;

@@ -7,6 +7,12 @@
   "main": "./src/main.js",
   "type": "module",
   "types": "./types/main.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "types",
+    ".agents"
+  ],
   "exports": {
     ".": {
       "import": "./src/main.js",
@@ -50,7 +56,10 @@
     "dom",
     "select",
     "html",
-    "scan"
+    "scan",
+    "mavis",
+    "ai",
+    "agent-skill"
   ],
   "allowScripts": {
     "fsevents@2.3.3": true,
