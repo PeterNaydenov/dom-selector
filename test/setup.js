@@ -1,10 +1,11 @@
+import { beforeEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { JSDOM } from 'jsdom'
 
-const dom = new JSDOM()
-globalThis.Node = dom.window.Node
-globalThis.NodeList = dom.window.NodeList
-globalThis.Element = dom.window.Element
-globalThis.HTMLElement = dom.window.HTMLElement
-globalThis.Document = dom.window.Document
-globalThis.HTMLCollection = dom.window.HTMLCollection
-globalThis.NamedNodeMap = dom.window.NamedNodeMap
+const fixture = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8')
+const appMarkup = new JSDOM(fixture).window.document.querySelector('#app').outerHTML
+
+beforeEach(() => {
+  document.body.innerHTML = appMarkup
+})
