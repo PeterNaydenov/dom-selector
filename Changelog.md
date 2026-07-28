@@ -2,6 +2,11 @@
 
 
 
+## 3.1.6 ( 2026-07-27 )
+- [x] Skill updates;
+
+
+
 ### 3.1.5 ( 2026-07-18 )
 - [x] Skill for DOM Selector is added;
 
