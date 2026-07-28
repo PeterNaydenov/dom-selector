@@ -22,6 +22,22 @@ type DomSelector = {
 Each `domSelector()` call returns a **fresh, isolated instance** — stores
 are not shared between instances.
 
+### Calling the factory
+
+Both forms work and produce the same result:
+
+```js
+const dom = domSelector()       // recommended
+const dom = new domSelector()   // also fine
+```
+
+The factory is a function that explicitly returns an object literal, so
+`new` doesn't introduce any `this`-binding surprise. The repo's own
+`index.html` and the test suite use the `new` form; the README and
+official examples use the bare form. Pick whichever matches the project's
+existing style. If you're writing fresh code, prefer `domSelector()`
+without `new` — that's the signature the TypeScript types advertise.
+
 ## `Selection`
 
 The object passed to `define` (or to `run` for the inline form).
@@ -153,3 +169,13 @@ Detached elements: `up(detachedElement)` yields just itself and stops
   the cache. Call `run` first if you want `use` to read.
 - **`use` does not re-run** — by design. If the user wants fresh DOM
   data, they need `run`.
+
+## Related references
+
+- For the most common shapes (counting, caching, tree-walking, etc.) see
+  `references/patterns.md`.
+- For v1.x → v2.x → v3.x changes see `references/migration.md`.
+- For TypeScript-specific patterns (typing `where`, importing the named
+  types) see `references/typescript.md`.
+- For Vue / Svelte / Node-JSDOM setup see
+  `references/framework-integration.md`.

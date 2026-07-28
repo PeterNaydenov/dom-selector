@@ -1,18 +1,14 @@
 ---
 name: dom-selector
 description: |
-  Help developers use the `@peter.naydenov/dom-selector` library correctly.
-  Use this skill when the question mentions "dom-selector", `domSelector()`,
-  `dom.define`, `dom.run`, `dom.use`, `dom.remember`, `direction: 'up'|'down'|'none'`,
+  Use when the user is working with `@peter.naydenov/dom-selector` — mentions
+  `domSelector()`, `dom.define` / `run` / `use` / `remember`, `direction`,
   the `END` symbol in a `where` callback, the `final` hook, or any of the
   library's typedefs (`Selection`, `WhereContext`, `WalkFn`, `DomSelector`).
-  Triggers on requests like "how do I find elements in my vanilla-JS app",
-  "cache DOM lookups by name", "walk descendants / ancestors of a node",
-  "stop a scan early", "filter a NodeList", "shape a result array with a
-  projection", or any question about the v1.x → v2.x → v3.x migration
-  sequence. Do NOT trigger for plain `document.querySelector` questions
-  unrelated to this library, or for other `@peter.naydenov/*` packages —
-  route those to their own skills.
+  Triggers on "cache DOM lookups by name", "walk descendants/ancestors",
+  "stop a scan early", "filter a NodeList", "shape a result with a
+  projection", or v1.x → v2.x → v3.x migration questions. Skip plain
+  `document.querySelector` questions and other `@peter.naydenov/*` packages.
 ---
 
 # DOM Selector Helper
@@ -21,12 +17,16 @@ description: |
 - **Library version** — read `package.json` for `@peter.naydenov/dom-selector` if available; otherwise ask. Defaults and method signatures differ across 1.x, 2.x, and 3.x. The shape of `where`, the existence of `direction: 'none'`, and the existence of `final` and `END` semantics are all version-dependent.
 - **DOM the user is querying** — a file path, an HTML snippet, or a description. Without this, examples can't be grounded and the answer will read as boilerplate.
 - **Desired output shape** — array of elements? count? a single element? a transformed value? Drives whether to recommend `where`, `final`, or just `selector` alone.
+- **Environment** — browser, Node/JSDOM, or inside a framework (Vue / Svelte / vanilla). Drives whether to point at `references/framework-integration.md` and whether `selector` can assume `document` is defined.
 
 ## Procedure
 1. **Confirm the version, then read `references/api.md`** for the canonical surface: 4 methods (`define`, `run`, `use`, `remember`), 5 `Selection` properties, the `WhereContext` object, and `END` semantics. Reason: this library has subtle defaults (`direction: 'none'`, `where` defaults to identity) that produce silently empty results when forgotten.
-2. **Read `references/patterns.md`** for the most common shapes. Reason: 80% of usage is one of five canonical patterns; pattern-matching the user's question to the right one saves a round-trip.
-3. **If the user is migrating, read `references/migration.md`.** Reason: `where` was renamed (`node` → `item`) and its return contract changed (1.x → 2.x), and `direction` gained `'none'` and a default of `'none'` (2.x → 3.x). Old code from tutorials doesn't compile against current versions.
-4. **Draft the answer using the building blocks below.** Reason: these are the bits first-time developers get wrong:
+2. **Read `references/patterns.md`** for the most common shapes. Reason: 80% of usage is one of the canonical patterns there; pattern-matching the user's question to the right one saves a round-trip.
+3. **If the user is in TypeScript, also read `references/typescript.md`** for the type-safe shape (the `Selection` / `WhereContext` / `WalkFn` / `DomSelector` types are exported, and a `where` callback can be typed to infer `item`).
+4. **If the user is in Vue, Svelte, or Node/JSDOM, also read `references/framework-integration.md`** — the `selector` runs at call time, so it can read from any DOM-like API; the patterns there cover the common gotchas.
+5. **If the user is migrating, read `references/migration.md`.** Reason: `where` was renamed (`node` → `item`) and its return contract changed (1.x → 2.x), and `direction` gained `'none'` and a default of `'none'` (2.x → 3.x). Old code from tutorials doesn't compile against current versions.
+6. **Draft the answer using the building blocks below.** Reason: these are the bits first-time developers get wrong:
+   - The factory is callable both ways: `domSelector()` and `new domSelector()` both work and return the same object. The function returns an object literal explicitly, so `new` doesn't introduce a `this`-binding surprise — pick whichever matches the project's style.
    - `define` is idempotent. Re-defining the same name **overwrites the selector and invalidates the cache** (3.1.4+). The next `use(name)` returns `[]` until `run(name)` repopulates.
    - `run(name, ...args)` forwards the extra args to **all three** of `selector`, `where`, and `final`.
    - `use(name, ...args)` forwards the extra args to **`final` only** — it does **not** re-run the selector. It transforms the cached array, no DOM work.
@@ -34,8 +34,8 @@ description: |
    - `direction: 'none'` is the default. The result is **not** auto-expanded. If the selector returns a single element, only that element is fed to `where` unless `direction` is set.
    - `where` can return: the element (keep it), `null` (skip it), an `Element[]` (add each), or `END` (stop the scan).
    - `final` runs once on the final array. It can return any value, not just an array — so `run` / `use` don't always return `Array`.
-5. **Cross-check against the installed `types/main.d.ts`** if you need ground truth. Reason: the `.d.ts` in the consumer's `node_modules/@peter.naydenov/dom-selector/types/` is auto-generated from the JSDoc and is what TypeScript actually sees. If anything in `references/api.md` or the README disagrees with the types, the types win.
-6. **If the answer involves a non-obvious shape** (cache invalidation, `END`, args forwarding, `final` returning a non-array), call it out explicitly in the response — don't make the user re-derive the rule.
+7. **Cross-check against the installed `types/main.d.ts`** if you need ground truth. Reason: the `.d.ts` in the consumer's `node_modules/@peter.naydenov/dom-selector/types/` is auto-generated from the JSDoc and is what TypeScript actually sees. If anything in `references/api.md` or the README disagrees with the types, the types win.
+8. **If the answer involves a non-obvious shape** (cache invalidation, `END`, args forwarding, `final` returning a non-array), call it out explicitly in the response — don't make the user re-derive the rule.
 
 ## Output contract
 - **Code that runs.** A complete snippet with `import` / `require`, at least one `dom.define(...)`, and at least one `dom.run(...)`. No "..." placeholders that hide the structure.
@@ -48,7 +48,7 @@ description: |
 - **User expects stale cache after re-define** → note that 3.1.4+ invalidates the cache; if they need the old "use returns whatever was last cached" behaviour, they can `run` after `define` to repopulate.
 - **User writes a homemade `Symbol('end___')` and the scan doesn't stop** → they need to capture `END` from the `where` context object, not create their own. This is the most common footgun in this library.
 - **User tries to `define` without a name, with `selector: 'not-a-fn'`, or with `null` / `undefined`** → since 3.1.4, `define` returns `false` and `run` returns `[]` instead of throwing. If the user reports "nothing happens", check for the silent false-return path.
-- **User passes an `Event`, `Window`, or other non-element to `selector`** → `run` will execute but `direction: 'up'|'down'` walks `.parentElement` / `.children` which is `null` for non-Element roots. Recommend `where` to filter to elements, or have `selector` return a `Document` or specific root.
+- **User passes an `Event`, `Window`, `Document`, or other non-`HTMLElement` to `selector`** → no crash. The library guards the `direction: 'up' | 'down'` walk with `instanceof HTMLElement` (see `_select` in `src/main.js`), so non-Elements are silently skipped during expansion. The original value still passes through `where` though, so if the user expects a tree walk they need to return an `HTMLElement` (or filter the result in `where`).
 
 ## Examples
 
@@ -94,4 +94,6 @@ dom.use('links', false)             // ditto, different projection
 For broader patterns (counting, sibling lookup, parameterized selectors, tree-walking,
 remembering a reference for later), see `references/patterns.md`. For the full API
 surface, see `references/api.md`. For version-migration notes, see
-`references/migration.md`.
+`references/migration.md`. For TypeScript usage (typed `where` callbacks, importing
+the named types), see `references/typescript.md`. For Vue / Svelte / Node-JSDOM
+integration, see `references/framework-integration.md`.

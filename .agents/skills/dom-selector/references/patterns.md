@@ -186,3 +186,12 @@ and runs it once. Useful for one-offs in `init` functions.
   `final`; `use` falls back to identity. If you need a projection, use
   `define` with `selector: () => []` and just `final`, or store the
   result yourself.
+
+## Related references
+
+- For the canonical method/type shapes see `references/api.md`.
+- For v1.x → v2.x → v3.x changes see `references/migration.md`.
+- For typed `where` callbacks and importing the named types see
+  `references/typescript.md`.
+- For Vue / Svelte / Node-JSDOM setup see
+  `references/framework-integration.md`.

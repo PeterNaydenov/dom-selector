@@ -126,3 +126,12 @@ The `types/main.d.ts` file in the repo is auto-generated from the
 JSDoc in `src/main.js` via `tsc`. If a type doesn't match what the
 README says, the `.d.ts` is the source of truth for what consumers
 actually get.
+
+## Related references
+
+- For the canonical method/type shapes see `references/api.md`.
+- For the most common patterns (counting, caching, tree-walking) see
+  `references/patterns.md`.
+- For TypeScript usage see `references/typescript.md`.
+- For Vue / Svelte / Node-JSDOM setup see
+  `references/framework-integration.md`.
