@@ -37,21 +37,15 @@
     "url": "git+https://github.com/PeterNaydenov/dom-selector.git"
   },
   "devDependencies": {
-    "@peter.naydenov/visual-controller-for-vue3": "^2.3.3",
     "@playwright/test": "^1.62.1",
-    "@rollup/plugin-commonjs": "^29.0.3",
-    "@rollup/plugin-node-resolve": "^16.0.3",
-    "@rollup/plugin-terser": "^1.0.0",
-    "@types/mocha": "^10.0.10",
     "@types/node": "^26.2.0",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vitest/coverage-v8": "^4.1.10",
-    "chai": "^6.2.2",
     "http-server": "^14.1.1",
     "jsdom": "^30.0.1",
-    "vitest": "^4.1.10",
     "typescript": "^7.0.2",
     "vite": "^8.2.1",
+    "vitest": "^4.1.10",
     "vue": "^3.5.41"
   },
   "keywords": [
