@@ -37,7 +37,7 @@
     "url": "git+https://github.com/PeterNaydenov/dom-selector.git"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^22.20.3",
     "@vitejs/plugin-vue": "^6.0.9",
     "@vitest/coverage-v8": "^5.0.1",
