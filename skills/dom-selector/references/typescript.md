@@ -1,11 +1,22 @@
 # TypeScript Usage
 
-The library ships its own type declarations at `types/main.d.ts`
-(auto-generated from the JSDoc on `src/main.js`). The named types
-`Selection`, `WhereContext`, `WalkFn`, and `DomSelector` are exported.
+The library ships its own type declarations: `types/main.d.ts` for
+ESM (auto-generated from the JSDoc on `src/main.js`) and
+`types/main.d.cts` for CommonJS. Both are wired through the `exports`
+map, so they resolve under `moduleResolution` `node16`, `nodenext` and
+`bundler`. The named types `Selection`, `WhereContext`, `WalkFn`, and
+`DomSelector` are exported.
 
 This file collects the patterns that come up most often when writing
 typed code against the library.
+
+## Contents
+- Importing (ESM and CommonJS)
+- Typing a `where` callback
+- Typing `final`
+- A fully-typed `define`
+- Common typed patterns
+- Things the types do not tell you
 
 ## Importing
 
@@ -20,12 +31,14 @@ import domSelector, {
 const dom: DomSelector = domSelector()
 ```
 
-If your project is CJS or your bundler is strict about default imports,
-use the namespace import:
+In a CommonJS project (`.cts` files, or `"type": "commonjs"` with
+`module: node16`/`nodenext`), `require` returns the factory itself.
+The named types live on the same identifier:
 
 ```ts
-import * as domSelectorNs from '@peter.naydenov/dom-selector'
-const dom = domSelectorNs.default()
+import domSelector = require('@peter.naydenov/dom-selector')
+
+const dom: domSelector.DomSelector = domSelector()
 ```
 
 ## Typing a `where` callback
@@ -47,7 +60,7 @@ return is loose. If you know your selector returns a narrower type
 (e.g. `HTMLAnchorElement`), you can refine it inside `where`:
 
 ```ts
-const onlyExternal: WhereContext['where'] = ({ item }) => {
+const onlyExternal: NonNullable<Selection['where']> = ({ item }) => {
   const a = item as HTMLAnchorElement
   return a.host && a.host !== location.host ? a : null
 }
@@ -61,7 +74,7 @@ it on the variable that receives the return:
 
 ```ts
 const count: number = dom.run('link-count')
-//   ^? number — inferred from `final: result => result.length`
+// `run` returns `any`; the annotation is what makes `count` a number
 ```
 
 For a typed array result, narrow the variable:
@@ -124,7 +137,7 @@ dom.define({
 ### Reusing a single `where` for many selectors
 
 ```ts
-const visible: WhereContext['where'] = ({ item }) =>
+const visible: NonNullable<Selection['where']> = ({ item }) =>
   item instanceof HTMLElement && item.offsetParent ? item : null
 
 dom.define({ name: 'cards',     selector: () => document.querySelectorAll('.card'),     where: visible })
@@ -140,6 +153,6 @@ dom.define({ name: 'modals',    selector: () => document.querySelectorAll('.moda
 - `where` can return `Element[]`, but the result array will be flat —
   no nested arrays survive. The type doesn't say so, but the runtime
   spreads the return.
-- The `result` argument to `final` is always an `Array<unknown>` at
-  the type level, even if your `where` narrows the items. Cast at the
-  call site.
+- The `result` argument to `final` is always `any[]` at the type
+  level, even if your `where` narrows the items. Annotate or cast it
+  inside `final` if you need element types.

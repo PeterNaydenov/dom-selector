@@ -3,6 +3,19 @@
 Canonical shapes the library is built for. Match the user's question to
 one of these and lift the code.
 
+## Contents
+1. Simple named query
+2. Parameterized selector
+3. Tree walk + filter
+4. Subtree test inside `where`
+5. Stop early
+6. Projection (count, group, sort)
+7. Cached + cheap re-read
+8. Fixed / pre-existing reference
+9. Per-section ownership
+10. Inline one-shot selector
+- Anti-patterns to flag
+
 ## 1. Simple named query
 Use when: the same selector appears in more than one place, or you
 want a cacheable result.
@@ -40,9 +53,10 @@ dom.define({
 })
 ```
 
-If `selector` returns a list, `direction` is ignored — so the same
-pattern works with `selector: () => document.querySelectorAll('.card')`
-and no `direction`.
+`direction` also expands lists — every item gets its descendants
+added. If you already have the candidates as a list, drop `direction`:
+`selector: () => document.querySelectorAll('.card')` with the same
+`where`.
 
 ## 4. Subtree test inside `where`
 Use when: you want to keep an element based on what's inside it
@@ -69,8 +83,6 @@ Use when: the user only cares about the first N matches, or wants
 short-circuit evaluation (e.g. "is there at least one match?").
 
 ```js
-const END = Symbol('end___')   // captured locally if needed for compare
-
 dom.define({
   name: 'first-two',
   selector: () => document.querySelectorAll('span'),
@@ -164,7 +176,7 @@ clutter the store.
 const links = dom.run({
   name: 'inline-links',
   selector: () => document.querySelectorAll('a'),
-  where: ({ item }) => item.host !== location.host,
+  where: ({ item }) => item.host !== location.host ? item : null,
 })
 ```
 
@@ -181,17 +193,12 @@ and runs it once. Useful for one-offs in `init` functions.
   If the DOM has changed, call `run` again.
 - **Re-defining a name expecting the cache to keep the old result.**
   Since 3.1.4 the cache is invalidated on re-define.
-- **Calling `use` for a name that was only `remember`-ed with a
-  custom `final` registered separately.** `remember` doesn't store a
-  `final`; `use` falls back to identity. If you need a projection, use
-  `define` with `selector: () => []` and just `final`, or store the
-  result yourself.
-
-## Related references
-
-- For the canonical method/type shapes see `references/api.md`.
-- For v1.x → v2.x → v3.x changes see `references/migration.md`.
-- For typed `where` callbacks and importing the named types see
-  `references/typescript.md`.
-- For Vue / Svelte / Node-JSDOM setup see
-  `references/framework-integration.md`.
+- **Returning a boolean from `where`.** Truthy values are kept as-is,
+  so `({ item }) => item.matches('.x')` returns `[true, true, ...]`.
+  Return `item` or `null`.
+- **`remember` before `define` for the same name.** `define` wipes the
+  cache, so the remembered value is lost. To apply a `final` to a
+  remembered reference, `define({ name, selector: () => [], final })`
+  first, then `remember(name, value)`; `use(name)` runs `final` on it.
+- **Setting `direction` on a list of nested elements.** Each item is
+  expanded, so descendants that are also in the list appear twice.

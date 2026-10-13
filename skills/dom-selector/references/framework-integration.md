@@ -10,30 +10,38 @@ The mental model is the same in all of them: **one `dom` instance per
 setup boundary, never shared across boundaries**. Each `define`
 belongs to one feature; `use` reads back what that feature cached.
 
+Timing rule: `define` is lazy — it only stores the selector, so it can
+run anywhere. `run` and `remember` read the DOM, so call them once the
+elements exist (after mount). `use` returns `[]` until a `run` or
+`remember` has filled the cache.
+
+## Contents
+- Vue 3 (composable per feature, shared store trade-off)
+- Svelte
+- Node / JSDOM (SSR or tests), Vitest, Playwright
+- Server-side rendering
+- Things to watch in any framework
+
 ---
 
 ## Vue 3 (Composition API, Vite)
 
-The repo ships a `test/vue-example-01.vue` that uses the same
-shape. The pattern that scales is a **composable per feature**, each
+The pattern that scales is a **composable per feature**, each
 one owning its own `dom` instance.
 
 ```ts
 // composables/useDomHeader.ts
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted } from 'vue'
 import domSelector from '@peter.naydenov/dom-selector'
 
 export function useDomHeader() {
   const dom = domSelector()
 
-  onMounted(() => {
-    dom.define({ name: 'brand',    selector: () => document.querySelector('.brand') })
-    dom.remember('cart-btn', document.querySelector('.cart-btn'))
-  })
+  dom.define({ name: 'brand', selector: () => document.querySelector('.brand') })
 
-  onUnmounted(() => {
-    // Optional: clear caches if the component is long-lived
-    // The instance is GC'd on unmount anyway
+  onMounted(() => {
+    dom.run('brand')                                            // fill the cache
+    dom.remember('cart-btn', document.querySelector('.cart-btn'))
   })
 
   return {
@@ -58,14 +66,13 @@ const { brand, cartBtn } = useDomHeader()
 
 Two things to watch in Vue specifically:
 
-1. **`onMounted` is the only safe place to call `define`** for
-   selectors that touch `document.querySelector(...)`. The component
-   template is in the DOM by then.
-2. **Don't put `domSelector()` at module top-level** in a Vue SFC
-   project — Vite's HMR will reload the module and re-`define`
-   everything, which invalidates every cache. Keep the `domSelector()`
-   call inside the composable function so it runs per component
-   instance.
+1. **Call `run` / `remember` in `onMounted` (or later)**, not in
+   `setup` directly — before mount the template isn't in the DOM, so
+   the selector finds nothing and `[]` gets cached.
+2. **Keep `domSelector()` inside the composable**, not at module
+   top level. A module-level instance is one shared cache for every
+   component instance that uses the composable, so one component's
+   `run` overwrites another's result.
 
 ### A cross-feature pattern: a `dom` "registry" store
 
@@ -99,10 +106,10 @@ component. For most apps, **per-feature composables are safer**.
 
 ---
 
-## Svelte 4 / 5
+## Svelte
 
-The shape is the same as Vue — a per-component instance created in
-`onMount`:
+The shape is the same as Vue — a per-component instance, with the DOM
+read in `onMount`:
 
 ```svelte
 <!-- Header.svelte -->
@@ -111,42 +118,33 @@ The shape is the same as Vue — a per-component instance created in
   import domSelector from '@peter.naydenov/dom-selector'
 
   const dom = domSelector()
+  dom.define({ name: 'brand', selector: () => document.querySelector('.brand') })
 
   onMount(() => {
-    dom.define({ name: 'brand', selector: () => document.querySelector('.brand') })
+    dom.run('brand')   // fill the cache once the markup exists
   })
 
-  function getBrand() {
-    return dom.use('brand')
+  function highlightBrand() {
+    dom.use('brand').forEach(el => el.classList.add('active'))
   }
 </script>
 
-<button on:click={getBrand}>Get brand</button>
+<a class="brand" href="/">Logo</a>
+<button onclick={highlightBrand}>Highlight</button>
 ```
 
-For Svelte 5 with runes, the same pattern works — there's nothing
-svelte-specific to wire up. The instance is just a regular variable
-scoped to the component.
+This is Svelte 5 syntax; in Svelte 4 write `on:click={highlightBrand}`.
+Runes need no special wiring — the instance is a plain variable scoped
+to the component.
 
 ---
 
 ## Node / JSDOM (SSR or tests)
 
-The library is pure DOM — it does not import `document` itself. Your
-`selector` function does, so any environment that provides a DOM-like
-`document` works. The simplest is to install `jsdom` and pin
-`document` to it.
-
-`package.json`:
-```json
-{
-  "devDependencies": {
-    "jsdom": "^30.0.0"
-  }
-}
-```
-
-Minimal setup (this is exactly the pattern `test/setup.js` uses):
+The library does not import `document` itself — your `selector` does.
+It does use the globals `HTMLElement`, `NodeList` and `HTMLCollection`
+for `instanceof` checks, so all four must exist. Install `jsdom`
+(`npm i -D jsdom`) and expose them:
 
 ```js
 // dom-bootstrap.js
@@ -237,9 +235,8 @@ defined` from inside your `selector`, not from inside the library.
 
 - **One instance per setup boundary.** Don't share a `dom` between
   unrelated features; cache invalidation gets confusing.
-- **`define` after mount, not at module top-level.** SFC/HMR will
-  re-run module code; you want `define` to fire after the component's
-  DOM is in the document.
+- **`run` / `remember` after mount.** `define` can happen anywhere, but
+  anything that reads the DOM must wait until the elements exist.
 - **Cache invalidation is per-instance.** Re-`define`-ing a name
   wipes the cache for *that* instance only. If you have two
   composables that both `define` a selector named `'brand'`, they're

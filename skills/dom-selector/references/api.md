@@ -4,6 +4,13 @@ Source of truth for the library surface. Mirrors `types/main.d.ts` (3.1.4+).
 If a discrepancy exists between this file and the generated `.d.ts`, the
 `.d.ts` wins — it is what consumers actually get.
 
+## Contents
+- Public surface and calling the factory
+- `Selection`: `name`, `selector`, `where`, `direction`, `final`
+- `WhereContext`, `END` semantics, `up` / `down`
+- Method behaviour: `define`, `remember`, `run`, `use`
+- Things that look like bugs but aren't
+
 ## Public surface
 
 The factory function returns an object with four methods:
@@ -31,12 +38,9 @@ const dom = domSelector()       // recommended
 const dom = new domSelector()   // also fine
 ```
 
-The factory is a function that explicitly returns an object literal, so
-`new` doesn't introduce any `this`-binding surprise. The repo's own
-`index.html` and the test suite use the `new` form; the README and
-official examples use the bare form. Pick whichever matches the project's
-existing style. If you're writing fresh code, prefer `domSelector()`
-without `new` — that's the signature the TypeScript types advertise.
+The factory explicitly returns an object literal, so `new` changes
+nothing. Match the project's existing style; for fresh code prefer
+`domSelector()` — that's the signature the TypeScript types advertise.
 
 ## `Selection`
 
@@ -45,9 +49,10 @@ The object passed to `define` (or to `run` for the inline form).
 ```ts
 type Selection = {
   name:      string;                                                  // required, truthy
-  selector:  (...args: any[]) => Element | NodeList | HTMLCollection | Array;
+  selector:  (...args: any[]) =>
+                Element | NodeList | HTMLCollection | any[] | null | undefined;
   where?:    (ctx: WhereContext, ...args: any[]) =>
-                Element | null | symbol | Element[];                  // default: ({item}) => item
+                Element | Element[] | symbol | null | undefined;      // default: ({item}) => item
   direction?: 'up' | 'down' | 'none';                                // default: 'none'
   final?:    (result: any[], ...args: any[]) => any;                  // default: identity
 };
@@ -61,7 +66,8 @@ invalidates the cache** (3.1.4+).
 ### `selector`
 Required and must be a function. Called with whatever extra args you pass
 to `run`. Can return a single element, a `NodeList`, an `HTMLCollection`,
-or any array. Anything `convertToArray` accepts works.
+any array, or `null` / `undefined` (nothing selected) — so
+`() => document.querySelector('.x')` type-checks under `strict` (3.1.8+).
 
 ### `where`
 Optional. Called once per candidate with a `WhereContext`. Return values:
@@ -70,17 +76,26 @@ Optional. Called once per candidate with a `WhereContext`. Return values:
 - `Element[]` → add each element
 - `END` (the symbol from the context) → stop the scan
 
+Any other truthy value is added to the result as-is, and any other falsy
+value skips. So a predicate like `({ item }) => item.matches('a')` fills
+the result with `true` — return `item` or `null` instead.
+
 If you omit `where`, the library installs a default that returns the item
 unchanged.
 
 ### `direction`
-Optional, default `'none'`. Only meaningful when `selector` returns a
-single element:
-- `'up'` — walk ancestors up to and including `<body>` before `where` runs
-- `'down'` — walk all descendants depth-first
-- `'none'` — do not expand; only the single element reaches `where`
+Optional, default `'none'`. Controls whether the selector's output is
+expanded before `where` runs:
+- `'up'` — each element plus its ancestors, up to and including `<body>`
+- `'down'` — each element plus all its descendants, depth-first
+- `'none'` — no expansion; the selector's output reaches `where` as-is
 
-If `selector` returns a list, `direction` is ignored.
+With `'up'` / `'down'`, expansion applies to **every** `HTMLElement` the
+selector returns — a single element or each item of a list. Values that
+are not `HTMLElement` (`window`, `document`, text nodes, plain objects)
+are **dropped** and never reach `where`. Expanding a list whose items are
+nested inside each other produces duplicates. (In 2.x lists were never
+expanded; that changed in 3.0.)
 
 `up()` and `down()` are also exposed **inside the where context** (see
 `WhereContext` below), so you can do a subtree test from a where callback
@@ -169,13 +184,9 @@ Detached elements: `up(detachedElement)` yields just itself and stops
   the cache. Call `run` first if you want `use` to read.
 - **`use` does not re-run** — by design. If the user wants fresh DOM
   data, they need `run`.
-
-## Related references
-
-- For the most common shapes (counting, caching, tree-walking, etc.) see
-  `references/patterns.md`.
-- For v1.x → v2.x → v3.x changes see `references/migration.md`.
-- For TypeScript-specific patterns (typing `where`, importing the named
-  types) see `references/typescript.md`.
-- For Vue / Svelte / Node-JSDOM setup see
-  `references/framework-integration.md`.
+- **`remember` + `final`: order matters.** `use` applies the `final`
+  registered under the same name. `define` → `remember` → `use` runs
+  `final` over the remembered value; `remember` → `define` → `use`
+  returns `[]`, because `define` wiped the remembered value.
+- **`direction` with a list returns more than expected** — each list
+  item is expanded (see `direction`).
