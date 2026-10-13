@@ -1,6 +1,24 @@
 # Release History
 
 
+## 3.1.8 ( 2026-10-13 )
+- [x] Fix: TypeScript types were not delivered. The `exports` map had no `types` condition, so with `moduleResolution` `node16`, `nodenext` or `bundler` TypeScript ignored the top-level `"types"` field and reported `TS7016` (implicit `any`). Every `exports` condition now carries its own `types` entry;
+- [x] Fix: `require('@peter.naydenov/dom-selector')` threw `MODULE_NOT_FOUND`. `exports.require` pointed to `dist/dom-selector.cjs`, but the build emitted `dom-selector.cjs.js` (which Node would load as ESM anyway, because the package is `"type": "module"`). The CommonJS build is now emitted as `dist/dom-selector.cjs`;
+- [x] Fix (types): `selector` may return `null` / `undefined`, and `where` may return `undefined`. Previously the most common selector, `() => document.querySelector('.x')` (`Element | null`), failed to compile under `strict`, although the library already treated `null` as an empty selection;
+- [x] JSDoc: rewrote the descriptions of the public types (`Selection`, `WhereContext`, `WalkFn`, `DomSelector`) and corrected inaccurate internal comments (`remember` normalisation, `run` inline registration, `use` empty-cache cases, `_select` argument forwarding);
+- [x] Types: added `types/main.d.cts` for CommonJS consumers (`import domSelector = require(...)`, named types available as `domSelector.DomSelector`, etc.);
+- [x] Cleanup: removed stale `types/src/` declarations that were still published;
+- [x] Cleanup: removed leftover Playwright and Cypress configs and the unused dev dependencies `@playwright/test`, `http-server`, `vue` and `@vitejs/plugin-vue`;
+- [x] Tests: `npm run test:ui` now opens the Vitest UI (`@vitest/ui`) instead of Playwright, which could no longer run the Vitest-based specs;
+- [x] Cleanup: `test-results/` is no longer tracked in git;
+- [x] Skill moved from `.agents/skills/dom-selector` to the more visible root-level `skills/dom-selector`. Installed package path: `node_modules/@peter.naydenov/dom-selector/skills/dom-selector`;
+- [x] Skill updated to Anthropic's current skill-authoring best practices: third-person description stating what the skill does and when to use it; a table of contents in every reference file; no cross-links between reference files; leaner SKILL.md (99 → 82 lines);
+- [x] Skill fixes (each claim verified against the library): `direction` expands every element of a list (it was documented as ignored for lists) and drops non-`HTMLElement` values; a boolean returned from `where` is kept as `true`; the order of `remember` and `define` decides whether `use` applies `final`; corrected the SKILL.md example that returned `UL`/`A`/`SPAN` as well as `LI`, and the inline-selector pattern that returned booleans; the Vue and Svelte examples now call `run` before `use`;
+- [x] Skill migration notes corrected against the release history: 1.x `stop(item, result)`, 2.x default `direction: 'down'`, `selector` arguments since 2.2.0, list expansion since 3.0, the 3.1.1 `final` fix;
+- [x] Skill TypeScript reference: correct CommonJS import, correct type for a standalone `where` callback (`NonNullable<Selection['where']>`), `run` is not inferred from `final`, and every snippet type-checks under `strict`; removed a reference to a non-existent Vue example file;
+
+
+
 ## 3.1.7 ( 2026-07-27 )
 - [x] Cleaning the none-used files and dependencies;
 
