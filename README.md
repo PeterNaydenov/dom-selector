@@ -287,7 +287,7 @@ Three modules, three concerns, one shared `dom`. Each call to `run` or `use` is 
 The skill is useful inside this very repo as a contributor reference. The procedure tells the model to cross-check the installed `types/main.d.ts` rather than this repo's test files, so the same skill works for both library users and library authors without modification.
 
 ```
-.agents/skills/dom-selector
+skills/dom-selector
 ```
 
 
