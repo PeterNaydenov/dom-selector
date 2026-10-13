@@ -1,13 +1,11 @@
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
-  plugins: [vue()],
   build: { 
     lib: { 
       entry: 'src/main.js', 
       name: 'domSelector', 
-      fileName: (format) => `dom-selector.${format}.js`,
+      fileName: (format) => format === 'cjs' ? 'dom-selector.cjs' : `dom-selector.${format}.js`,
       formats: [ 'umd', 'cjs', 'es' ]
     },
     rollupOptions: {
