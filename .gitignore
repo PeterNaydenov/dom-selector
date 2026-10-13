@@ -11,7 +11,8 @@ node_modules
 dist-ssr
 *.local
 
-# Playwright
+# Test output
+test-results
 playwright-report
 
 # Local metadata
