@@ -2,36 +2,44 @@
 
 
 /**
+ * The context object passed as the first argument to a `where` callback.
+ *
  * @typedef {Object} WhereContext
- * @property {*}     item    The current element from the source list.
- * @property {number} i      Zero-based index of `item` in the source list.
- * @property {number} length Items already accumulated in the result *before* `item` is considered.
- * @property {symbol} END    A per-call `Symbol`. Return this from `where` to stop the scan early.
- * @property {WalkFn} up     Generator yielding the ancestors of `item`, up to and including `<body>`.
- * @property {WalkFn} down   Generator yielding `item` followed by all its descendants (depth-first).
+ * @property {*}      item   The current candidate: an item returned by `selector`, or an element reached by the `direction` walk.
+ * @property {number} i      Zero-based index of `item` among all candidates.
+ * @property {number} length Number of items already in the result, before `item` is considered.
+ * @property {symbol} END    A new `Symbol` for every `run`. Return it from `where` to stop the scan; a `Symbol` created elsewhere won't stop it.
+ * @property {WalkFn} up     Walks upwards: call `up(element)` to get `element` and its ancestors, up to and including `<body>`.
+ * @property {WalkFn} down   Walks downwards: call `down(element)` to get `element` and all its descendants, depth-first.
  */
 
 /**
+ * A generator function that yields `startingElement` first, then the elements reached by the walk.
+ *
  * @callback WalkFn
- * @param {HTMLElement} startingElement
+ * @param {HTMLElement} startingElement  The element to start the walk from.
  * @returns {Generator<HTMLElement, void, void>}
  */
 
 /**
+ * The definition of a named selection, passed to `define` or directly to `run`.
+ *
  * @typedef {Object} Selection
- * @property {string}                                                                                              name      Required. Unique name for the selection. Must be truthy.
- * @property {(...args: any[]) => Element | NodeList | HTMLCollection | Array}                                     selector  Required. Returns a single element (used with `direction`) or a list of elements.
- * @property {(ctx: WhereContext, ...args: any[]) => Element | null | symbol | Element[]}                         [where]    Optional. Default: `({item}) => item`.
- * @property {'up' | 'down' | 'none'}                                                                             [direction] Optional. Default: `'none'`.
- * @property {(result: any[], ...args: any[]) => any}                                                              [final]    Optional. Default: identity.
+ * @property {string}                                                                                                    name        Name to register the selection under. Must be non-empty; defining an existing name replaces it.
+ * @property {(...args: any[]) => Element | NodeList | HTMLCollection | any[] | null | undefined}                        selector    Returns the starting point: one element, a list, or `null`/`undefined` for nothing. Receives the extra arguments of `run`.
+ * @property {(ctx: WhereContext, ...args: any[]) => Element | Element[] | symbol | null | undefined}                   [where]     Filters each candidate: return the item to keep it, an array to keep several, a falsy value to skip it, or `ctx.END` to stop. Receives the extra arguments of `run`. Default: keeps every item.
+ * @property {'up' | 'down' | 'none'}                                                                                   [direction] Expands each element returned by `selector` with its ancestors (`'up'`) or descendants (`'down'`) before `where` runs; non-elements are dropped. Default: `'none'` (no expansion).
+ * @property {(result: any[], ...args: any[]) => any}                                                                    [final]     Reshapes the result array once, after `where`. Its return value is what `run` and `use` return. Receives the extra arguments of `run` or `use`. Default: returns the array unchanged.
  */
 
 /**
+ * The object returned by `domSelector()`.
+ *
  * @typedef {Object} DomSelector
- * @property {(selection: Selection) => boolean}                                define    Register (or update) a named selector.
- * @property {(name: string, value: any) => void}                                remember  Cache an arbitrary value (typically a DOM reference) under a name.
- * @property {(name: string | Selection, ...args: any[]) => any}                 run       Execute a selector and return the final result.
- * @property {(name: string, ...args: any[]) => any}                             use       Re-read the cached result of the last `run`/`remember` for `name`.
+ * @property {(selection: Selection) => boolean}                     define    Registers a named selection, or replaces one with the same name. Returns `false` if the selection is invalid.
+ * @property {(name: string, value: any) => void}                    remember  Stores a value (typically a DOM reference) under a name without querying the DOM.
+ * @property {(name: string | Selection, ...args: any[]) => any}     run       Queries the DOM with a selection, caches the result, and returns it after `final`.
+ * @property {(name: string, ...args: any[]) => any}                 use       Returns the cached result of the last `run` or `remember` for `name`, after `final`. Does not query the DOM.
  */
 
 /**
@@ -128,9 +136,9 @@ function domSelector () {
 
 
     /**
-     * Coerce an arbitrary value to a real `Array`. Used to normalise
-     * `selector` / `remember` inputs that may be a `NodeList`,
-     * `HTMLCollection`, an `Array`, `null`/`undefined`, or a single value.
+     * Coerce an arbitrary value to a real `Array`. Used to normalise the
+     * output of `selector`, the return value of `where`, and the value
+     * given to `remember`.
      *
      * @param  {*}      value
      * @return {Array}  `Array.from(value)` for NodeList/HTMLCollection, the
@@ -142,33 +150,32 @@ function domSelector () {
                         value instanceof NodeList ||
                         value instanceof HTMLCollection
             ) {
-                    // If starting point is a NodeList or HTMLCollection, we need to convert it to an array
                     return Array.from ( value )
                 }
             else if ( value instanceof Array ) {
-                    // If starting point is an array, we need to convert it to an array
-                    return value
+                    return value   // Already an array: use as-is
                 }
             else if ( value == null ) {
-                    // If starting point is null, we need to convert it to an empty array
-                    return []
+                    return []   // null / undefined: nothing to select
                 }
             else {
-                    return [ value ]
+                    return [ value ]   // A single value: wrap it
                 }
         } // convertToArray func.
 
 
 
     /**
-     * Internal: execute one selector pipeline. Walks the tree if
-     * `direction !== 'none'`, then runs `where` for each candidate.
+     * Internal: execute one selection. If `direction` is `'up'` or
+     * `'down'`, each `HTMLElement` from `startingPoint` is expanded with
+     * its ancestors or descendants (anything else is dropped); then
+     * `where` runs for each candidate.
      *
-     * @param  {*}               startingPoint  Anything `convertToArray` accepts.
+     * @param  {*}                  startingPoint  The `selector` output. Anything `convertToArray` accepts.
      * @param  {'up'|'down'|'none'} direction
-     * @param  {Function}        [where]
-     * @param  {...*}            args           Forwarded to `where` and to the stored `final`.
-     * @return {Array}                           The filtered / mapped array, before `final` runs.
+     * @param  {Function}           [where]
+     * @param  {...*}               args           Forwarded to `where`.
+     * @return {Array}                             The result array, before `final` runs.
      */
     function _select ( startingPoint, direction, where, ...args ) {
                 const
@@ -181,7 +188,7 @@ function domSelector () {
                 let source = convertToArray ( startingPoint );
                 if ( source.length === 0 )   return result
 
-                // Add to source elements of extra scan if direction is defined as up or down
+                // Expand each element with its ancestors / descendants. Non-elements are dropped.
                 if ( isforScan ) {
                         source = source.reduce ( ( res, item) => {
                                             if ( item instanceof HTMLElement ) {
@@ -209,14 +216,16 @@ function domSelector () {
      * Execute a named selector and return its final result.
      *
      * Accepts either a string `name` (look up an existing `define`-d
-     * selector) or a `Selection` object (register it inline and run it
-     * once — useful for one-shot selectors).
+     * selection) or a `Selection` object, which is registered exactly
+     * as `define` would do and then run — handy for one-shot selections.
+     *
+     * The result (before `final`) is cached for later `use` calls.
      *
      * Extra arguments are forwarded to **all three** of: the `selector`,
      * the `where` callback, and the `final` callback.
      *
-     * Returns `[]` for: a missing name, a bad inline `Selection`, a name
-     * that was never `define`-d.
+     * Returns `[]` for a missing name, an invalid inline `Selection`, or
+     * a name that was never `define`-d.
      *
      * @param  {string | Selection} name
      * @param  {...*}               args
@@ -249,8 +258,10 @@ function domSelector () {
      * Extra arguments are forwarded **only to `final`** (not to the
      * `selector` or `where`, which aren't invoked here).
      *
-     * Returns `[]` for an unknown name. Falls back to the identity
-     * function if the name is only `remember`-ed (no `final` to run).
+     * Returns `[]` if nothing is cached for `name` — it was never `run`
+     * or `remember`-ed, or a later `define` cleared it. If no selection
+     * is registered under `name` (only `remember`-ed), the cached array
+     * is returned unchanged.
      *
      * @param  {string} name
      * @param  {...*}   args   Forwarded to `final`.
@@ -269,36 +280,32 @@ function domSelector () {
 
     /**
      * Cache a value (typically a DOM reference) under a name without
-     * registering a selector. `use(name)` later returns the same value
-     * as a normalised array.
+     * querying the DOM. `use(name)` reads it back later, passed through
+     * the `final` of a selection with the same name, if one is defined.
      *
-     * The value is run through `convertToArray`, so list-likes
-     * (`NodeList`, `HTMLCollection`, `Array`) are stored as-is, a
-     * single element is wrapped in `[element]`, and `null`/`undefined`
-     * become `[]`. Note that `<form>` and `<select>` elements carry a
-     * numeric `.length` of their own, so a duck-type `.length` check
-     * would mistake them for lists — always use this function rather
-     * than trying to normalise by hand.
+     * The value is normalised with `convertToArray`: a `NodeList` or
+     * `HTMLCollection` becomes an array, an array is kept as-is, a single
+     * value is wrapped in `[value]`, and `null`/`undefined` become `[]`.
+     *
+     * A later `define` with the same name clears the remembered value.
      *
      * @param {string} name
-     * @param {*}      value  Anything. Normalised to an array internally.
+     * @param {*}      value  Anything; typically an element or a list of elements.
      * @return {void}
      */
-    function remember ( name, domElement ) {
-            // Normalize to a real array so `use` always returns an array.
-            // Note: a `.length` check is not enough here — <form> and <select>
-            // elements have a numeric `.length` of their own, and an empty
-            // NodeList has `.length === 0` and would be double-wrapped.
-            last.set ( name, convertToArray ( domElement ))
+    function remember ( name, value ) {
+            // Not a `.length` duck-type check: <form> and <select> elements
+            // have a numeric `.length` of their own and would be taken for lists.
+            last.set ( name, convertToArray ( value ))
         } // remember func.
 
 
 
     return {
                   define     // Define a new selector
-                , remember  // Store a DOM reference(s) directly as last result without creating a selector. Useful for fixed elements.
-                , run       // Run a selector
-                , use       // Use the last result of the selector or remembered reference(s)
+                , remember  // Store DOM reference(s) as a cached result without a selector. Useful for fixed elements.
+                , run       // Run a selector and cache the result
+                , use       // Read the cached result of the last `run` or `remember`
             }
 
 } // dom-selector func.
