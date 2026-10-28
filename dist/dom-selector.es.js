@@ -1,4 +1,4 @@
-//#region src/main.js
+// src/main.js
 function e() {
 	let e = /* @__PURE__ */ new Map(), t = /* @__PURE__ */ new Map();
 	function n(n) {
@@ -71,5 +71,4 @@ function e() {
 		use: c
 	};
 }
-//#endregion
 export { e as default };
